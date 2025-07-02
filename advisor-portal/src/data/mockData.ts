@@ -185,34 +185,50 @@ export const mockPolicies: Policy[] = [
 ];
 
 export const mockCommissions: Commission[] = [
+  // 2024 Q3 - Current Month
   {
     id: '1',
-    policyNumber: 'POL2023001',
-    clientName: 'James Wilson',
-    productType: 'Whole Life',
+    policyNumber: 'POL2024001',
+    clientName: 'Michael Stevens',
+    productType: 'Term Life',
     commissionType: 'First Year',
-    amount: 4250,
+    amount: 2250,
     percentage: 50,
-    paymentDate: '2023-04-15',
-    paymentStatus: 'Paid',
-    year: 2023,
-    quarter: 2
+    paymentDate: '2024-07-15',
+    paymentStatus: 'Pending',
+    year: 2024,
+    quarter: 3
   },
   {
     id: '2',
-    policyNumber: 'POL2023002',
-    clientName: 'Lisa Thompson',
-    productType: 'Term Life',
+    policyNumber: 'POL2024002',
+    clientName: 'Sarah Johnson',
+    productType: 'Whole Life',
     commissionType: 'First Year',
-    amount: 1800,
-    percentage: 50,
-    paymentDate: '2023-08-20',
+    amount: 3850,
+    percentage: 55,
+    paymentDate: '2024-07-08',
     paymentStatus: 'Paid',
-    year: 2023,
+    year: 2024,
     quarter: 3
   },
   {
     id: '3',
+    policyNumber: 'POL2022005',
+    clientName: 'Robert Chen',
+    productType: 'Universal Life',
+    commissionType: 'Renewal',
+    amount: 650,
+    percentage: 5,
+    paymentDate: '2024-07-01',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 3
+  },
+
+  // 2024 Q2
+  {
+    id: '4',
     policyNumber: 'POL2023001',
     clientName: 'James Wilson',
     productType: 'Whole Life',
@@ -225,7 +241,61 @@ export const mockCommissions: Commission[] = [
     quarter: 2
   },
   {
-    id: '4',
+    id: '5',
+    policyNumber: 'POL2024003',
+    clientName: 'Emily Davis',
+    productType: 'Variable Universal Life',
+    commissionType: 'First Year',
+    amount: 5200,
+    percentage: 60,
+    paymentDate: '2024-06-20',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 2
+  },
+  {
+    id: '6',
+    policyNumber: 'POL2024004',
+    clientName: 'David Martinez',
+    productType: 'Term Life',
+    commissionType: 'First Year',
+    amount: 1950,
+    percentage: 50,
+    paymentDate: '2024-05-10',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 2
+  },
+  {
+    id: '7',
+    policyNumber: 'POL2023008',
+    clientName: 'Jennifer Lee',
+    productType: 'Whole Life',
+    commissionType: 'Renewal',
+    amount: 380,
+    percentage: 5,
+    paymentDate: '2024-06-01',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 2
+  },
+  {
+    id: '8',
+    policyNumber: 'POL2020012',
+    clientName: 'Patricia Brown',
+    productType: 'Universal Life',
+    commissionType: 'Trail',
+    amount: 150,
+    percentage: 1,
+    paymentDate: '2024-05-15',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 2
+  },
+
+  // 2024 Q1
+  {
+    id: '9',
     policyNumber: 'POL2022001',
     clientName: 'David Garcia',
     productType: 'Universal Life',
@@ -238,14 +308,206 @@ export const mockCommissions: Commission[] = [
     quarter: 1
   },
   {
-    id: '5',
-    policyNumber: 'POL2024001',
-    clientName: 'New Client',
+    id: '10',
+    policyNumber: 'POL2024005',
+    clientName: 'Lisa Anderson',
     productType: 'Term Life',
     commissionType: 'First Year',
-    amount: 2250,
+    amount: 2100,
     percentage: 50,
-    paymentDate: '2024-07-15',
+    paymentDate: '2024-03-25',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 1
+  },
+  {
+    id: '11',
+    policyNumber: 'POL2024006',
+    clientName: 'Mark Thompson',
+    productType: 'Whole Life',
+    commissionType: 'First Year',
+    amount: 4100,
+    percentage: 55,
+    paymentDate: '2024-02-14',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 1
+  },
+  {
+    id: '12',
+    policyNumber: 'POL2023012',
+    clientName: 'Karen White',
+    productType: 'Universal Life',
+    commissionType: 'Renewal',
+    amount: 550,
+    percentage: 5,
+    paymentDate: '2024-01-28',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 1
+  },
+  {
+    id: '13',
+    policyNumber: 'POL2019008',
+    clientName: 'Richard Miller',
+    productType: 'Whole Life',
+    commissionType: 'Trail',
+    amount: 180,
+    percentage: 1,
+    paymentDate: '2024-03-10',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 1
+  },
+
+  // 2023 Q4
+  {
+    id: '14',
+    policyNumber: 'POL2023002',
+    clientName: 'Lisa Thompson',
+    productType: 'Term Life',
+    commissionType: 'First Year',
+    amount: 1800,
+    percentage: 50,
+    paymentDate: '2023-11-20',
+    paymentStatus: 'Paid',
+    year: 2023,
+    quarter: 4
+  },
+  {
+    id: '15',
+    policyNumber: 'POL2023013',
+    clientName: 'John Rodriguez',
+    productType: 'Variable Universal Life',
+    commissionType: 'First Year',
+    amount: 4800,
+    percentage: 60,
+    paymentDate: '2023-12-05',
+    paymentStatus: 'Paid',
+    year: 2023,
+    quarter: 4
+  },
+  {
+    id: '16',
+    policyNumber: 'POL2022015',
+    clientName: 'Angela Davis',
+    productType: 'Whole Life',
+    commissionType: 'Renewal',
+    amount: 420,
+    percentage: 5,
+    paymentDate: '2023-10-15',
+    paymentStatus: 'Paid',
+    year: 2023,
+    quarter: 4
+  },
+
+  // 2023 Q3
+  {
+    id: '17',
+    policyNumber: 'POL2023001',
+    clientName: 'James Wilson',
+    productType: 'Whole Life',
+    commissionType: 'First Year',
+    amount: 4250,
+    percentage: 55,
+    paymentDate: '2023-08-15',
+    paymentStatus: 'Paid',
+    year: 2023,
+    quarter: 3
+  },
+  {
+    id: '18',
+    policyNumber: 'POL2023014',
+    clientName: 'Thomas Garcia',
+    productType: 'Term Life',
+    commissionType: 'First Year',
+    amount: 2050,
+    percentage: 50,
+    paymentDate: '2023-09-08',
+    paymentStatus: 'Paid',
+    year: 2023,
+    quarter: 3
+  },
+  {
+    id: '19',
+    policyNumber: 'POL2021003',
+    clientName: 'Nancy Wilson',
+    productType: 'Universal Life',
+    commissionType: 'Renewal',
+    amount: 580,
+    percentage: 5,
+    paymentDate: '2023-07-22',
+    paymentStatus: 'Paid',
+    year: 2023,
+    quarter: 3
+  },
+
+  // Bonus Commissions
+  {
+    id: '20',
+    policyNumber: 'BONUS2024Q1',
+    clientName: 'Production Bonus',
+    productType: 'Bonus',
+    commissionType: 'Bonus',
+    amount: 2500,
+    percentage: 0,
+    paymentDate: '2024-04-30',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 2
+  },
+  {
+    id: '21',
+    policyNumber: 'BONUS2023Q4',
+    clientName: 'Year-End Bonus',
+    productType: 'Bonus',
+    commissionType: 'Bonus',
+    amount: 3000,
+    percentage: 0,
+    paymentDate: '2024-01-15',
+    paymentStatus: 'Paid',
+    year: 2024,
+    quarter: 1
+  },
+
+  // Adjustments
+  {
+    id: '22',
+    policyNumber: 'POL2023005',
+    clientName: 'Michael Brown',
+    productType: 'Term Life',
+    commissionType: 'First Year',
+    amount: -150,
+    percentage: 50,
+    paymentDate: '2024-06-15',
+    paymentStatus: 'Adjusted',
+    year: 2024,
+    quarter: 2
+  },
+
+  // Pending Commissions
+  {
+    id: '23',
+    policyNumber: 'POL2024007',
+    clientName: 'Rachel Green',
+    productType: 'Whole Life',
+    commissionType: 'First Year',
+    amount: 3950,
+    percentage: 55,
+    paymentDate: '2024-08-05',
+    paymentStatus: 'Pending',
+    year: 2024,
+    quarter: 3
+  },
+  {
+    id: '24',
+    policyNumber: 'POL2024008',
+    clientName: 'Kevin Martinez',
+    productType: 'Universal Life',
+    commissionType: 'First Year',
+    amount: 2800,
+    percentage: 50,
+    paymentDate: '2024-08-12',
     paymentStatus: 'Pending',
     year: 2024,
     quarter: 3

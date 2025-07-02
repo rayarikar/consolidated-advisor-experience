@@ -9,6 +9,7 @@ import { UnifiedDashboard } from './components/dashboard/UnifiedDashboard';
 import { ProfileManagement } from './components/profile/ProfileManagement';
 import NotificationPage from './components/notifications/NotificationPage';
 import SelfServicePage from './components/self-service/SelfServicePage';
+import CommissionDashboard from './components/commissions/CommissionDashboard';
 import { 
   mockUser, 
   mockPreferences, 
@@ -122,7 +123,7 @@ function App() {
       case 'self-service':
         return <SelfServicePage />;
       case 'commissions':
-        return <div style={{ padding: 20 }}>Commission dashboard coming soon...</div>;
+        return <CommissionDashboard />;
       default:
         return <UnifiedDashboard cases={mockCases} policies={mockPolicies} />;
     }
