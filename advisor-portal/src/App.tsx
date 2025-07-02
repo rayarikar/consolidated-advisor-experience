@@ -8,6 +8,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { UnifiedDashboard } from './components/dashboard/UnifiedDashboard';
 import { ProfileManagement } from './components/profile/ProfileManagement';
 import NotificationPage from './components/notifications/NotificationPage';
+import SelfServicePage from './components/self-service/SelfServicePage';
 import { 
   mockUser, 
   mockPreferences, 
@@ -119,7 +120,7 @@ function App() {
       case 'preferences':
         return <NotificationPage />;
       case 'self-service':
-        return <div style={{ padding: 20 }}>Self-service page coming soon...</div>;
+        return <SelfServicePage />;
       case 'commissions':
         return <div style={{ padding: 20 }}>Commission dashboard coming soon...</div>;
       default:

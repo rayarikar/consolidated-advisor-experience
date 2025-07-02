@@ -78,13 +78,99 @@ export interface Commission {
   quarter: number;
 }
 
+export interface ApprovalStep {
+  approver: string;
+  approverRole: 'Client' | 'Advisor' | 'Home Office';
+  status: 'Pending' | 'Approved' | 'Rejected';
+  date?: string;
+  comments?: string;
+  documentsReviewed?: string[];
+}
+
+export interface DocumentRequirement {
+  id: string;
+  name: string;
+  description: string;
+  required: boolean;
+  uploaded: boolean;
+  uploadedFile?: UploadedDocument;
+}
+
+export interface UploadedDocument {
+  id: string;
+  filename: string;
+  uploadDate: string;
+  fileType: string;
+  fileSize: number;
+  uploadedBy: string;
+}
+
+export interface ComplianceCheck {
+  id: string;
+  name: string;
+  description: string;
+  status: 'Pending' | 'Passed' | 'Failed' | 'Not Applicable';
+  checkDate?: string;
+  notes?: string;
+}
+
+export interface CommissionImpact {
+  currentCommission: number;
+  newCommission: number;
+  impactAmount: number;
+  impactPercentage: number;
+  effectiveDate: string;
+}
+
+export interface RequestMessage {
+  id: string;
+  sender: string;
+  senderRole: 'Client' | 'Advisor' | 'Home Office' | 'System';
+  recipient: string;
+  message: string;
+  timestamp: string;
+  isInternal: boolean;
+}
+
 export interface SelfServiceRequest {
   id: string;
   policyNumber: string;
-  requestType: 'Address Change' | 'Beneficiary Change' | 'Payment Method' | 'Premium Mode';
-  status: 'Pending' | 'Approved' | 'Rejected';
+  clientName: string;
+  requestType: 'Address Change' | 'Beneficiary Change' | 'Payment Method' | 'Premium Mode' | 
+               'Policy Loan' | 'Surrender Request' | 'Dividend Election' | 'Policy Reinstatement' |
+               'Name Change' | 'Contact Update' | 'Premium Adjustment' | 'Policy Delivery Confirmation' |
+               'Document Request' | 'Tax Document Request' | 'Performance Report' | 'Illustration Update';
+  status: 'Client Submitted' | 'Advisor Review' | 'Advisor Approved' | 'Advisor Rejected' | 
+          'Documentation Needed' | 'Home Office Review' | 'Home Office Approved' | 'Home Office Rejected' |
+          'Completed' | 'Cancelled';
+  priority: 'Urgent' | 'Standard' | 'Low';
+  
+  // Multi-party workflow
+  initiatedBy: 'Client' | 'Advisor' | 'Home Office';
+  clientApproval?: ApprovalStep;
+  advisorApproval?: ApprovalStep;
+  homeOfficeApproval?: ApprovalStep;
+  
+  // Documentation & compliance
+  documentsRequired: DocumentRequirement[];
+  documentsUploaded: UploadedDocument[];
+  complianceChecks: ComplianceCheck[];
+  
+  // Business logic
+  commissionImpact?: CommissionImpact;
+  effectiveDate?: string;
+  policyAnniversaryRequired?: boolean;
+  
+  // Communication
+  messages: RequestMessage[];
+  
+  // Tracking
   requestDate: string;
+  lastUpdated: string;
+  estimatedCompletion?: string;
   processedDate?: string;
+  
+  // Legacy support
   details: any;
 }
 

@@ -253,32 +253,340 @@ export const mockCommissions: Commission[] = [
 ];
 
 export const mockSelfServiceRequests: SelfServiceRequest[] = [
+  // URGENT - Client Submitted Requests Awaiting Advisor Review
   {
     id: '1',
     policyNumber: 'POL2023001',
-    requestType: 'Address Change',
-    status: 'Approved',
-    requestDate: '2024-06-15',
-    processedDate: '2024-06-16',
+    clientName: 'James Wilson',
+    requestType: 'Beneficiary Change',
+    status: 'Client Submitted',
+    priority: 'Urgent',
+    initiatedBy: 'Client',
+    requestDate: '2024-07-02',
+    lastUpdated: '2024-07-02',
+    estimatedCompletion: '2024-07-09',
+    documentsRequired: [
+      {
+        id: 'doc1',
+        name: 'Beneficiary Change Form',
+        description: 'Notarized beneficiary designation form',
+        required: true,
+        uploaded: true,
+        uploadedFile: {
+          id: 'file1',
+          filename: 'beneficiary_form_wilson.pdf',
+          uploadDate: '2024-07-02',
+          fileType: 'application/pdf',
+          fileSize: 245760,
+          uploadedBy: 'James Wilson'
+        }
+      },
+      {
+        id: 'doc2',
+        name: 'Birth Certificate',
+        description: 'Birth certificate for new minor beneficiary',
+        required: true,
+        uploaded: false
+      }
+    ],
+    documentsUploaded: [
+      {
+        id: 'file1',
+        filename: 'beneficiary_form_wilson.pdf',
+        uploadDate: '2024-07-02',
+        fileType: 'application/pdf',
+        fileSize: 245760,
+        uploadedBy: 'James Wilson'
+      }
+    ],
+    complianceChecks: [
+      {
+        id: 'comp1',
+        name: 'Identity Verification',
+        description: 'Client identity verified through secure portal',
+        status: 'Passed',
+        checkDate: '2024-07-02'
+      },
+      {
+        id: 'comp2',
+        name: 'State Licensing',
+        description: 'Advisor licensed in client state',
+        status: 'Passed',
+        checkDate: '2024-07-02'
+      },
+      {
+        id: 'comp3',
+        name: 'Document Requirements',
+        description: 'All required documents submitted',
+        status: 'Failed',
+        notes: 'Missing birth certificate for minor beneficiary'
+      }
+    ],
+    messages: [
+      {
+        id: 'msg1',
+        sender: 'James Wilson',
+        senderRole: 'Client',
+        recipient: 'John Adams',
+        message: 'Hi John, I need to add my newborn daughter Emma as a beneficiary. I uploaded the form but need help with the birth certificate.',
+        timestamp: '2024-07-02T10:30:00Z',
+        isInternal: false
+      }
+    ],
     details: {
-      oldAddress: '123 Main St, New York, NY 10001',
-      newAddress: '456 Oak Ave, Brooklyn, NY 11201'
+      currentBeneficiaries: [
+        { name: 'Jane Wilson', relationship: 'Spouse', percentage: 100, type: 'Primary' }
+      ],
+      requestedChanges: [
+        { name: 'Jane Wilson', relationship: 'Spouse', percentage: 60, type: 'Primary' },
+        { name: 'Emma Wilson', relationship: 'Daughter', percentage: 40, type: 'Primary' }
+      ]
     }
   },
+
   {
     id: '2',
-    policyNumber: 'POL2023002',
-    requestType: 'Beneficiary Change',
-    status: 'Pending',
-    requestDate: '2024-06-28',
-    details: {
-      action: 'Add',
-      beneficiary: {
-        name: 'Sarah Thompson',
-        relationship: 'Daughter',
-        percentage: 25,
-        type: 'Primary'
+    policyNumber: 'POL2022001',
+    clientName: 'David Garcia',
+    requestType: 'Policy Loan',
+    status: 'Client Submitted',
+    priority: 'Standard',
+    initiatedBy: 'Client',
+    requestDate: '2024-07-01',
+    lastUpdated: '2024-07-01',
+    estimatedCompletion: '2024-07-08',
+    documentsRequired: [
+      {
+        id: 'doc3',
+        name: 'Loan Application',
+        description: 'Policy loan application form',
+        required: true,
+        uploaded: true,
+        uploadedFile: {
+          id: 'file2',
+          filename: 'loan_application_garcia.pdf',
+          uploadDate: '2024-07-01',
+          fileType: 'application/pdf',
+          fileSize: 180240,
+          uploadedBy: 'David Garcia'
+        }
       }
+    ],
+    documentsUploaded: [
+      {
+        id: 'file2',
+        filename: 'loan_application_garcia.pdf',
+        uploadDate: '2024-07-01',
+        fileType: 'application/pdf',
+        fileSize: 180240,
+        uploadedBy: 'David Garcia'
+      }
+    ],
+    complianceChecks: [
+      {
+        id: 'comp4',
+        name: 'Cash Value Availability',
+        description: 'Sufficient cash value for requested loan amount',
+        status: 'Passed',
+        checkDate: '2024-07-01'
+      },
+      {
+        id: 'comp5',
+        name: 'Policy Status',
+        description: 'Policy is active and in good standing',
+        status: 'Passed',
+        checkDate: '2024-07-01'
+      }
+    ],
+    commissionImpact: {
+      currentCommission: 600,
+      newCommission: 580,
+      impactAmount: -20,
+      impactPercentage: -3.3,
+      effectiveDate: '2024-07-08'
+    },
+    messages: [
+      {
+        id: 'msg2',
+        sender: 'David Garcia',
+        senderRole: 'Client',
+        recipient: 'John Adams',
+        message: 'I need to borrow $15,000 against my policy for home repairs. When can this be processed?',
+        timestamp: '2024-07-01T14:15:00Z',
+        isInternal: false
+      }
+    ],
+    details: {
+      loanAmount: 15000,
+      currentCashValue: 25000,
+      availableLoanValue: 22500,
+      interestRate: 5.5,
+      purpose: 'Home improvements'
+    }
+  },
+
+  // ADVISOR REVIEW - Requests in advisor review stage
+  {
+    id: '3',
+    policyNumber: 'POL2023002',
+    clientName: 'Lisa Thompson',
+    requestType: 'Address Change',
+    status: 'Advisor Review',
+    priority: 'Standard',
+    initiatedBy: 'Client',
+    advisorApproval: {
+      approver: 'John Adams',
+      approverRole: 'Advisor',
+      status: 'Pending',
+      date: '2024-06-30'
+    },
+    requestDate: '2024-06-28',
+    lastUpdated: '2024-06-30',
+    estimatedCompletion: '2024-07-05',
+    documentsRequired: [],
+    documentsUploaded: [],
+    complianceChecks: [
+      {
+        id: 'comp6',
+        name: 'Address Verification',
+        description: 'New address verified through postal service',
+        status: 'Passed',
+        checkDate: '2024-06-30'
+      }
+    ],
+    messages: [],
+    details: {
+      oldAddress: '789 Pine St, Hartford, CT 06103',
+      newAddress: '321 Maple Ave, Hartford, CT 06105',
+      effectiveDate: '2024-07-01'
+    }
+  },
+
+  // COMPLETED - Successfully processed requests
+  {
+    id: '4',
+    policyNumber: 'POL2021001',
+    clientName: 'Jennifer Martinez',
+    requestType: 'Premium Adjustment',
+    status: 'Completed',
+    priority: 'Standard',
+    initiatedBy: 'Advisor',
+    clientApproval: {
+      approver: 'Jennifer Martinez',
+      approverRole: 'Client',
+      status: 'Approved',
+      date: '2024-06-20',
+      comments: 'Approved via secure client portal'
+    },
+    advisorApproval: {
+      approver: 'John Adams',
+      approverRole: 'Advisor',
+      status: 'Approved',
+      date: '2024-06-22',
+      comments: 'Client requested change to quarterly payments to improve cash flow'
+    },
+    homeOfficeApproval: {
+      approver: 'Processing Team',
+      approverRole: 'Home Office',
+      status: 'Approved',
+      date: '2024-06-25',
+      comments: 'Payment frequency updated in system'
+    },
+    requestDate: '2024-06-20',
+    lastUpdated: '2024-06-25',
+    processedDate: '2024-06-25',
+    documentsRequired: [],
+    documentsUploaded: [],
+    complianceChecks: [
+      {
+        id: 'comp7',
+        name: 'Payment Method Verification',
+        description: 'Bank account verified for quarterly withdrawals',
+        status: 'Passed',
+        checkDate: '2024-06-22'
+      }
+    ],
+    messages: [
+      {
+        id: 'msg3',
+        sender: 'System',
+        senderRole: 'System',
+        recipient: 'Jennifer Martinez',
+        message: 'Your premium payment frequency has been changed to quarterly. Next payment due: September 1, 2024.',
+        timestamp: '2024-06-25T16:00:00Z',
+        isInternal: false
+      }
+    ],
+    details: {
+      oldFrequency: 'Semi-Annual',
+      newFrequency: 'Quarterly',
+      nextPaymentDate: '2024-09-01',
+      paymentAmount: 4500
+    }
+  },
+
+  // HOME OFFICE REVIEW - Requests awaiting final approval
+  {
+    id: '5',
+    policyNumber: 'POL2022003',
+    clientName: 'Robert Chen',
+    requestType: 'Surrender Request',
+    status: 'Home Office Review',
+    priority: 'Standard',
+    initiatedBy: 'Client',
+    clientApproval: {
+      approver: 'Robert Chen',
+      approverRole: 'Client',
+      status: 'Approved',
+      date: '2024-06-25'
+    },
+    advisorApproval: {
+      approver: 'John Adams',
+      approverRole: 'Advisor',
+      status: 'Approved',
+      date: '2024-06-27',
+      comments: 'Client needs funds for medical expenses. Partial surrender recommended to maintain coverage.'
+    },
+    requestDate: '2024-06-25',
+    lastUpdated: '2024-06-28',
+    estimatedCompletion: '2024-07-10',
+    documentsRequired: [
+      {
+        id: 'doc4',
+        name: 'Surrender Form',
+        description: 'Partial surrender request form',
+        required: true,
+        uploaded: true
+      }
+    ],
+    documentsUploaded: [],
+    complianceChecks: [
+      {
+        id: 'comp8',
+        name: 'Tax Implications Review',
+        description: 'Tax consequences calculated and disclosed',
+        status: 'Passed',
+        checkDate: '2024-06-27'
+      }
+    ],
+    messages: [
+      {
+        id: 'msg4',
+        sender: 'John Adams',
+        senderRole: 'Advisor',
+        recipient: 'Underwriting Team',
+        message: 'Client needs $25K for medical expenses. Recommending partial surrender to preserve death benefit.',
+        timestamp: '2024-06-27T11:30:00Z',
+        isInternal: true
+      }
+    ],
+    details: {
+      surrenderAmount: 25000,
+      currentCashValue: 45000,
+      surrenderCharges: 1250,
+      netAmount: 23750,
+      taxableGain: 8500,
+      remainingCashValue: 20000
     }
   }
 ];
