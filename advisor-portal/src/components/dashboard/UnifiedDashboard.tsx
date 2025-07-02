@@ -21,12 +21,15 @@ import {
   Visibility,
   AttachMoney,
   Assignment,
-  TrendingUp,
   Search,
   Refresh,
   ArrowUpward,
   ArrowDownward,
-  FilterList
+  FilterList,
+  Folder,
+  Policy as PolicyIcon,
+  AccountBalance,
+  Payments
 } from '@mui/icons-material';
 import { Case, Policy } from '../../types';
 
@@ -203,46 +206,54 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
       {/* Key Metrics */}
       <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
         <Card sx={{ flex: 1, minWidth: 200 }}>
-          <CardContent sx={{ textAlign: 'center' }}>
-            <Assignment sx={{ fontSize: 40, color: '#003f7f', mb: 1 }} />
+          <CardContent sx={{ py: 2, textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
+              <Folder sx={{ fontSize: 24, color: '#003f7f', mr: 1 }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                Active Cases
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ color: '#003f7f', fontWeight: 600 }}>
               {stats.activeCases}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Active Cases
-            </Typography>
           </CardContent>
         </Card>
         <Card sx={{ flex: 1, minWidth: 200 }}>
-          <CardContent sx={{ textAlign: 'center' }}>
-            <AttachMoney sx={{ fontSize: 40, color: '#0066cc', mb: 1 }} />
+          <CardContent sx={{ py: 2, textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
+              <PolicyIcon sx={{ fontSize: 24, color: '#0066cc', mr: 1 }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                Active Policies
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ color: '#0066cc', fontWeight: 600 }}>
               {stats.activePolicies}
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Active Policies
-            </Typography>
           </CardContent>
         </Card>
         <Card sx={{ flex: 1, minWidth: 200 }}>
-          <CardContent sx={{ textAlign: 'center' }}>
-            <TrendingUp sx={{ fontSize: 40, color: '#10b981', mb: 1 }} />
+          <CardContent sx={{ py: 2, textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
+              <AccountBalance sx={{ fontSize: 24, color: '#10b981', mr: 1 }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                Total Coverage
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ color: '#10b981', fontWeight: 600 }}>
               ${(stats.totalCoverage / 1000000).toFixed(1)}M
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Total Coverage
-            </Typography>
           </CardContent>
         </Card>
         <Card sx={{ flex: 1, minWidth: 200 }}>
-          <CardContent sx={{ textAlign: 'center' }}>
-            <AttachMoney sx={{ fontSize: 40, color: '#f59e0b', mb: 1 }} />
+          <CardContent sx={{ py: 2, textAlign: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
+              <Payments sx={{ fontSize: 24, color: '#f59e0b', mr: 1 }} />
+              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
+                Annual Premium
+              </Typography>
+            </Box>
             <Typography variant="h4" sx={{ color: '#f59e0b', fontWeight: 600 }}>
               ${(stats.totalPremium / 1000).toFixed(0)}K
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Annual Premium
             </Typography>
           </CardContent>
         </Card>
