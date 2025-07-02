@@ -98,12 +98,17 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
       if (viewFilter === 'cases' && item.type !== 'case') return false;
       if (viewFilter === 'policies' && item.type !== 'policy') return false;
 
-      // Apply search filter
+      // Apply search filter - search all table fields
       const matchesSearch = searchTerm === '' || 
         item.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.productType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.secondaryInfo.toLowerCase().includes(searchTerm.toLowerCase());
+        item.secondaryInfo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.coverageAmount.toString().includes(searchTerm.toLowerCase()) ||
+        item.annualPremium.toString().includes(searchTerm.toLowerCase()) ||
+        new Date(item.date).toLocaleDateString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.type === 'case' ? 'case' : 'policy').includes(searchTerm.toLowerCase());
       
       return matchesSearch;
     });
@@ -313,7 +318,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
           <Box sx={{ mb: 3 }}>
             <TextField
               fullWidth
-              placeholder={`Search ${viewFilter === 'all' ? 'cases and policies' : viewFilter} by client name, number, product type, or details...`}
+              placeholder={`Search ${viewFilter === 'all' ? 'cases and policies' : viewFilter} by any field (name, number, type, status, amount, date)...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => {
