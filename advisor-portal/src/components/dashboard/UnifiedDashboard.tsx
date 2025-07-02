@@ -2,8 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
-  Tabs,
-  Tab,
   Card,
   CardContent,
   Chip,
@@ -40,15 +38,16 @@ interface UnifiedDashboardProps {
 type SortDirection = 'asc' | 'desc' | null;
 type SortField = string;
 
+type ViewFilter = 'all' | 'cases' | 'policies';
+
 export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, policies }) => {
-  const [activeTab, setActiveTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('');
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+  const [viewFilter, setViewFilter] = useState<ViewFilter>('all');
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-    setSearchTerm('');
+  const handleViewFilterChange = (filter: ViewFilter) => {
+    setViewFilter(filter);
     setSortField('');
     setSortDirection(null);
   };
@@ -69,27 +68,54 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
     }
   };
 
-  const filteredCases = useMemo(() => {
-    let filtered = cases.filter(case_ => {
+  // Create unified data structure
+  const unifiedData = useMemo(() => {
+    const casesData = cases.map(case_ => ({
+      ...case_,
+      type: 'case' as const,
+      number: case_.caseNumber,
+      date: case_.lastUpdated,
+      secondaryInfo: case_.underwriter
+    }));
+
+    const policiesData = policies.map(policy => ({
+      ...policy,
+      type: 'policy' as const,
+      number: policy.policyNumber,
+      date: policy.renewalDate,
+      secondaryInfo: policy.premiumMode
+    }));
+
+    return [...casesData, ...policiesData];
+  }, [cases, policies]);
+
+  const filteredData = useMemo(() => {
+    let filtered = unifiedData.filter(item => {
+      // Apply view filter
+      if (viewFilter === 'cases' && item.type !== 'case') return false;
+      if (viewFilter === 'policies' && item.type !== 'policy') return false;
+
+      // Apply search filter
       const matchesSearch = searchTerm === '' || 
-        case_.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        case_.caseNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        case_.productType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        case_.underwriter.toLowerCase().includes(searchTerm.toLowerCase());
+        item.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.productType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.secondaryInfo.toLowerCase().includes(searchTerm.toLowerCase());
+      
       return matchesSearch;
     });
 
     // Apply sorting
     if (sortField && sortDirection) {
       filtered = filtered.sort((a, b) => {
-        let aVal: any = a[sortField as keyof Case];
-        let bVal: any = b[sortField as keyof Case];
+        let aVal: any = a[sortField as keyof typeof a];
+        let bVal: any = b[sortField as keyof typeof b];
 
         // Handle special cases for sorting
         if (sortField === 'coverageAmount' || sortField === 'annualPremium') {
           aVal = Number(aVal);
           bVal = Number(bVal);
-        } else if (sortField === 'lastUpdated' || sortField === 'submissionDate') {
+        } else if (sortField === 'date' || sortField === 'lastUpdated' || sortField === 'renewalDate') {
           aVal = new Date(aVal);
           bVal = new Date(bVal);
         } else {
@@ -104,44 +130,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
     }
 
     return filtered;
-  }, [cases, searchTerm, sortField, sortDirection]);
-
-  const filteredPolicies = useMemo(() => {
-    let filtered = policies.filter(policy => {
-      const matchesSearch = searchTerm === '' || 
-        policy.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        policy.policyNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        policy.productType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        policy.premiumMode.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesSearch;
-    });
-
-    // Apply sorting
-    if (sortField && sortDirection) {
-      filtered = filtered.sort((a, b) => {
-        let aVal: any = a[sortField as keyof Policy];
-        let bVal: any = b[sortField as keyof Policy];
-
-        // Handle special cases for sorting
-        if (sortField === 'coverageAmount' || sortField === 'annualPremium') {
-          aVal = Number(aVal);
-          bVal = Number(bVal);
-        } else if (sortField === 'issueDate' || sortField === 'renewalDate') {
-          aVal = new Date(aVal);
-          bVal = new Date(bVal);
-        } else {
-          aVal = String(aVal).toLowerCase();
-          bVal = String(bVal).toLowerCase();
-        }
-
-        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
-        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
-
-    return filtered;
-  }, [policies, searchTerm, sortField, sortDirection]);
+  }, [unifiedData, viewFilter, searchTerm, sortField, sortDirection]);
 
   const getStatusColor = (status: string) => {
     const statusColors: { [key: string]: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' } = {
@@ -162,12 +151,13 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
   const getDashboardStats = () => {
     const activeCases = cases.filter(c => ['Submitted', 'Under Review', 'Additional Requirements', 'Approved'].includes(c.status));
     const activePolicies = policies.filter(p => p.status === 'Active');
-    const totalCoverage = activePolicies.reduce((sum, p) => sum + p.coverageAmount, 0);
-    const totalPremium = activePolicies.reduce((sum, p) => sum + p.annualPremium, 0);
+    const totalCoverage = [...activeCases, ...activePolicies].reduce((sum, item) => sum + item.coverageAmount, 0);
+    const totalPremium = [...activeCases, ...activePolicies].reduce((sum, item) => sum + item.annualPremium, 0);
     
     return {
       activeCases: activeCases.length,
       activePolicies: activePolicies.length,
+      totalItems: activeCases.length + activePolicies.length,
       totalCoverage,
       totalPremium
     };
@@ -258,35 +248,61 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
         </Card>
       </Box>
 
-      {/* Tabs and Filters */}
+      {/* Bubble Filters */}
       <Card sx={{ mb: 3 }}>
         <CardContent>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-            <Tabs value={activeTab} onChange={handleTabChange}>
-              <Tab 
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <span>Cases</span>
-                    <Chip label={stats.activeCases} color="primary" size="small" />
-                  </Box>
-                } 
-              />
-              <Tab 
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <span>Policies</span>
-                    <Chip label={stats.activePolicies} color="primary" size="small" />
-                  </Box>
-                } 
-              />
-            </Tabs>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom sx={{ color: '#003f7f', mb: 2 }}>
+              View Filter
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <Button
+                variant={viewFilter === 'all' ? 'contained' : 'outlined'}
+                onClick={() => handleViewFilterChange('all')}
+                sx={{
+                  borderRadius: '20px',
+                  textTransform: 'none',
+                  px: 3,
+                  py: 1
+                }}
+                startIcon={<Assignment />}
+              >
+                All ({stats.totalItems})
+              </Button>
+              <Button
+                variant={viewFilter === 'cases' ? 'contained' : 'outlined'}
+                onClick={() => handleViewFilterChange('cases')}
+                sx={{
+                  borderRadius: '20px',
+                  textTransform: 'none',
+                  px: 3,
+                  py: 1
+                }}
+                startIcon={<Assignment />}
+              >
+                Cases ({stats.activeCases})
+              </Button>
+              <Button
+                variant={viewFilter === 'policies' ? 'contained' : 'outlined'}
+                onClick={() => handleViewFilterChange('policies')}
+                sx={{
+                  borderRadius: '20px',
+                  textTransform: 'none',
+                  px: 3,
+                  py: 1
+                }}
+                startIcon={<AttachMoney />}
+              >
+                Policies ({stats.activePolicies})
+              </Button>
+            </Box>
           </Box>
 
           {/* Unified Search Bar */}
           <Box sx={{ mb: 3 }}>
             <TextField
               fullWidth
-              placeholder={`Search ${activeTab === 0 ? 'cases' : 'policies'} by client name, ${activeTab === 0 ? 'case number' : 'policy number'}, product type, ${activeTab === 0 ? 'underwriter' : 'premium mode'}...`}
+              placeholder={`Search ${viewFilter === 'all' ? 'cases and policies' : viewFilter} by client name, number, product type, or details...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => {
@@ -321,7 +337,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
             />
             {searchTerm && (
               <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
-                Found {activeTab === 0 ? filteredCases.length : filteredPolicies.length} {activeTab === 0 ? 'case(s)' : 'policy(ies)'} matching "{searchTerm}"
+                Found {filteredData.length} item(s) matching "{searchTerm}"
               </Typography>
             )}
           </Box>
@@ -361,38 +377,49 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
         </CardContent>
       </Card>
 
-      {/* Cases Table */}
-      {activeTab === 0 && (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-                <SortableTableCell field="caseNumber">Case Number</SortableTableCell>
-                <SortableTableCell field="clientName">Client Name</SortableTableCell>
-                <SortableTableCell field="productType">Product Type</SortableTableCell>
-                <SortableTableCell field="coverageAmount">Coverage</SortableTableCell>
-                <SortableTableCell field="annualPremium">Premium</SortableTableCell>
-                <SortableTableCell field="status">Status</SortableTableCell>
-                <SortableTableCell field="lastUpdated">Last Updated</SortableTableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredCases.map((case_) => (
-                <TableRow key={case_.id} hover>
-                  <TableCell>{case_.caseNumber}</TableCell>
-                  <TableCell>{case_.clientName}</TableCell>
-                  <TableCell>{case_.productType}</TableCell>
-                  <TableCell>${case_.coverageAmount.toLocaleString()}</TableCell>
-                  <TableCell>${case_.annualPremium.toLocaleString()}</TableCell>
+      {/* Unified Table */}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <SortableTableCell field="type">Type</SortableTableCell>
+              <SortableTableCell field="number">Number</SortableTableCell>
+              <SortableTableCell field="clientName">Client Name</SortableTableCell>
+              <SortableTableCell field="productType">Product Type</SortableTableCell>
+              <SortableTableCell field="coverageAmount">Coverage</SortableTableCell>
+              <SortableTableCell field="annualPremium">Premium</SortableTableCell>
+              <SortableTableCell field="status">Status</SortableTableCell>
+              <SortableTableCell field="date">Date</SortableTableCell>
+              <SortableTableCell field="secondaryInfo">Details</SortableTableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredData.length > 0 ? (
+              filteredData.map((item) => (
+                <TableRow key={`${item.type}-${item.id}`} hover>
                   <TableCell>
                     <Chip 
-                      label={case_.status} 
-                      color={getStatusColor(case_.status)}
+                      label={item.type === 'case' ? 'Case' : 'Policy'} 
+                      color={item.type === 'case' ? 'info' : 'success'}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell>{item.number}</TableCell>
+                  <TableCell>{item.clientName}</TableCell>
+                  <TableCell>{item.productType}</TableCell>
+                  <TableCell>${item.coverageAmount.toLocaleString()}</TableCell>
+                  <TableCell>${item.annualPremium.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={item.status} 
+                      color={getStatusColor(item.status)}
                       size="small"
                     />
                   </TableCell>
-                  <TableCell>{new Date(case_.lastUpdated).toLocaleDateString()}</TableCell>
+                  <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                  <TableCell>{item.secondaryInfo}</TableCell>
                   <TableCell>
                     <Tooltip title="View Details">
                       <IconButton size="small">
@@ -401,57 +428,21 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
                     </Tooltip>
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={10} sx={{ textAlign: 'center', py: 4 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    No {viewFilter === 'all' ? 'cases or policies' : viewFilter} found
+                    {searchTerm && ` matching "${searchTerm}"`}
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-      {/* Policies Table */}
-      {activeTab === 1 && (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-                <SortableTableCell field="policyNumber">Policy Number</SortableTableCell>
-                <SortableTableCell field="clientName">Client Name</SortableTableCell>
-                <SortableTableCell field="productType">Product Type</SortableTableCell>
-                <SortableTableCell field="coverageAmount">Coverage</SortableTableCell>
-                <SortableTableCell field="annualPremium">Premium</SortableTableCell>
-                <SortableTableCell field="status">Status</SortableTableCell>
-                <SortableTableCell field="renewalDate">Renewal Date</SortableTableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredPolicies.map((policy) => (
-                <TableRow key={policy.id} hover>
-                  <TableCell>{policy.policyNumber}</TableCell>
-                  <TableCell>{policy.clientName}</TableCell>
-                  <TableCell>{policy.productType}</TableCell>
-                  <TableCell>${policy.coverageAmount.toLocaleString()}</TableCell>
-                  <TableCell>${policy.annualPremium.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Chip 
-                      label={policy.status} 
-                      color={getStatusColor(policy.status)}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>{new Date(policy.renewalDate).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Tooltip title="View Details">
-                      <IconButton size="small">
-                        <Visibility />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
     </Box>
   );
 };
