@@ -87,3 +87,24 @@ export interface SelfServiceRequest {
   processedDate?: string;
   details: any;
 }
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  category: 'New Business' | 'Inforce' | 'Claims' | 'Client Management' | 'Compliance' | 'Sales Pipeline' | 'Business Management' | 'Risk Management' | 'Market Intelligence';
+  type: 'Status Change' | 'Anniversary' | 'Premium Due' | 'Document Required' | 'Commission' | 'Claim Update' | 'Underwriting' | 'System Alert' | 
+        'Policy Lapse Risk' | 'Cross-sell Opportunity' | 'Review Reminder' | 'Follow-up Required' | 'License Renewal' | 'Continuing Education' | 
+        'Compliance Filing' | 'Prospect Follow-up' | 'Quote Expiration' | 'Application Incomplete' | 'Territory Performance' | 'Rate Change' | 
+        'Persistency Alert' | 'Client Complaint' | 'Product Launch' | 'Underwriting Guideline';
+  priority: 'Critical' | 'High' | 'Medium' | 'Low';
+  isRead: boolean;
+  isActionable: boolean;
+  actionRequired?: string;
+  relatedId?: string; // Policy or Case ID
+  relatedNumber?: string; // Policy or Case Number
+  clientName?: string;
+  createdDate: string;
+  dueDate?: string;
+  urgencyLevel?: 'Immediate' | 'This Week' | 'This Month' | 'Future';
+}

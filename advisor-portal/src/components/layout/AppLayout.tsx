@@ -30,6 +30,7 @@ import {
   ExitToApp
 } from '@mui/icons-material';
 import { User } from '../../types';
+import { mockNotifications } from '../../data/mockData';
 
 const drawerWidth = 240;
 
@@ -50,6 +51,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  
+  const unreadNotifications = mockNotifications.filter(n => !n.isRead).length;
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -66,7 +69,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Dashboard /> },
     { id: 'profile', label: 'Profile', icon: <Person /> },
-    { id: 'preferences', label: 'Preferences', icon: <Settings /> },
+    { id: 'preferences', label: 'Notifications', icon: <Notifications /> },
     { id: 'self-service', label: 'Self Service', icon: <SupportAgent /> },
     { id: 'commissions', label: 'Commissions', icon: <AttachMoney /> },
   ];
@@ -133,8 +136,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             {menuItems.find(item => item.id === currentPage)?.label || 'Dashboard'}
           </Typography>
           
-          <IconButton color="inherit" sx={{ mr: 2 }}>
-            <Badge badgeContent={3} color="error">
+          <IconButton 
+            color="inherit" 
+            sx={{ mr: 2 }}
+            onClick={() => onPageChange('preferences')}
+          >
+            <Badge badgeContent={unreadNotifications} color="error">
               <Notifications />
             </Badge>
           </IconButton>

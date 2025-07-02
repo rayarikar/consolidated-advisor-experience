@@ -29,7 +29,8 @@ import {
   Folder,
   Policy as PolicyIcon,
   AccountBalance,
-  Payments
+  Payments,
+  FileDownload
 } from '@mui/icons-material';
 import { Case, Policy } from '../../types';
 
@@ -201,6 +202,35 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
   );
 
   const stats = getDashboardStats();
+
+  const exportToExcel = () => {
+    const csvContent = [
+      // Header row
+      ['Type', 'Number', 'Client Name', 'Product Type', 'Coverage', 'Premium', 'Status', 'Date', 'Details'].join(','),
+      // Data rows
+      ...filteredData.map(item => [
+        item.type === 'case' ? 'Case' : 'Policy',
+        `"${item.number}"`,
+        `"${item.clientName}"`,
+        `"${item.productType}"`,
+        item.coverageAmount,
+        item.annualPremium,
+        `"${item.status}"`,
+        `"${new Date(item.date).toLocaleDateString()}"`,
+        `"${item.secondaryInfo}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `book-of-business-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <Box>
@@ -392,6 +422,24 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
           </Box>
         </CardContent>
       </Card>
+
+      {/* Export Button - positioned above table */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+        <Tooltip title="Export to Excel">
+          <IconButton
+            onClick={exportToExcel}
+            sx={{
+              backgroundColor: '#003f7f',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: '#002d5a'
+              }
+            }}
+          >
+            <FileDownload />
+          </IconButton>
+        </Tooltip>
+      </Box>
 
       {/* Unified Table */}
       <TableContainer component={Paper}>

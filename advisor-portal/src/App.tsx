@@ -7,6 +7,7 @@ import { RegisterForm } from './components/auth/RegisterForm';
 import { AppLayout } from './components/layout/AppLayout';
 import { UnifiedDashboard } from './components/dashboard/UnifiedDashboard';
 import { ProfileManagement } from './components/profile/ProfileManagement';
+import NotificationPage from './components/notifications/NotificationPage';
 import { 
   mockUser, 
   mockPreferences, 
@@ -116,7 +117,7 @@ function App() {
       case 'profile':
         return <ProfileManagement user={currentUser} onUpdateProfile={handleUpdateProfile} />;
       case 'preferences':
-        return <div style={{ padding: 20 }}>Preferences page coming soon...</div>;
+        return <NotificationPage />;
       case 'self-service':
         return <div style={{ padding: 20 }}>Self-service page coming soon...</div>;
       case 'commissions':
