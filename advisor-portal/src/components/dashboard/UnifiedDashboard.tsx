@@ -9,10 +9,6 @@ import {
   Chip,
   Button,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -29,7 +25,10 @@ import {
   Assignment,
   TrendingUp,
   Search,
-  Refresh
+  Refresh,
+  ArrowUpward,
+  ArrowDownward,
+  FilterList
 } from '@mui/icons-material';
 import { Case, Policy } from '../../types';
 
@@ -38,40 +37,111 @@ interface UnifiedDashboardProps {
   policies: Policy[];
 }
 
+type SortDirection = 'asc' | 'desc' | null;
+type SortField = string;
+
 export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, policies }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [productFilter, setProductFilter] = useState('');
+  const [sortField, setSortField] = useState<SortField>('');
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
     setSearchTerm('');
-    setStatusFilter('');
-    setProductFilter('');
+    setSortField('');
+    setSortDirection(null);
+  };
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortDirection(null);
+        setSortField('');
+      } else {
+        setSortDirection('asc');
+      }
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
   };
 
   const filteredCases = useMemo(() => {
-    return cases.filter(case_ => {
+    let filtered = cases.filter(case_ => {
       const matchesSearch = searchTerm === '' || 
         case_.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        case_.caseNumber.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === '' || case_.status === statusFilter;
-      const matchesProduct = productFilter === '' || case_.productType === productFilter;
-      return matchesSearch && matchesStatus && matchesProduct;
+        case_.caseNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        case_.productType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        case_.underwriter.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
     });
-  }, [cases, searchTerm, statusFilter, productFilter]);
+
+    // Apply sorting
+    if (sortField && sortDirection) {
+      filtered = filtered.sort((a, b) => {
+        let aVal: any = a[sortField as keyof Case];
+        let bVal: any = b[sortField as keyof Case];
+
+        // Handle special cases for sorting
+        if (sortField === 'coverageAmount' || sortField === 'annualPremium') {
+          aVal = Number(aVal);
+          bVal = Number(bVal);
+        } else if (sortField === 'lastUpdated' || sortField === 'submissionDate') {
+          aVal = new Date(aVal);
+          bVal = new Date(bVal);
+        } else {
+          aVal = String(aVal).toLowerCase();
+          bVal = String(bVal).toLowerCase();
+        }
+
+        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [cases, searchTerm, sortField, sortDirection]);
 
   const filteredPolicies = useMemo(() => {
-    return policies.filter(policy => {
+    let filtered = policies.filter(policy => {
       const matchesSearch = searchTerm === '' || 
         policy.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        policy.policyNumber.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus = statusFilter === '' || policy.status === statusFilter;
-      const matchesProduct = productFilter === '' || policy.productType === productFilter;
-      return matchesSearch && matchesStatus && matchesProduct;
+        policy.policyNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        policy.productType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        policy.premiumMode.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesSearch;
     });
-  }, [policies, searchTerm, statusFilter, productFilter]);
+
+    // Apply sorting
+    if (sortField && sortDirection) {
+      filtered = filtered.sort((a, b) => {
+        let aVal: any = a[sortField as keyof Policy];
+        let bVal: any = b[sortField as keyof Policy];
+
+        // Handle special cases for sorting
+        if (sortField === 'coverageAmount' || sortField === 'annualPremium') {
+          aVal = Number(aVal);
+          bVal = Number(bVal);
+        } else if (sortField === 'issueDate' || sortField === 'renewalDate') {
+          aVal = new Date(aVal);
+          bVal = new Date(bVal);
+        } else {
+          aVal = String(aVal).toLowerCase();
+          bVal = String(bVal).toLowerCase();
+        }
+
+        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [policies, searchTerm, sortField, sortDirection]);
 
   const getStatusColor = (status: string) => {
     const statusColors: { [key: string]: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' } = {
@@ -102,6 +172,35 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
       totalPremium
     };
   };
+
+  const SortableTableCell = ({ field, children }: { field: string; children: React.ReactNode }) => (
+    <TableCell 
+      sx={{ 
+        fontWeight: 600, 
+        cursor: 'pointer',
+        userSelect: 'none',
+        '&:hover': { backgroundColor: '#f5f5f5' },
+        position: 'relative',
+        paddingRight: 4
+      }}
+      onClick={() => handleSort(field)}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {children}
+        <Box sx={{ display: 'flex', flexDirection: 'column', ml: 1 }}>
+          {sortField === field ? (
+            sortDirection === 'asc' ? (
+              <ArrowUpward sx={{ fontSize: 16, color: '#003f7f' }} />
+            ) : (
+              <ArrowDownward sx={{ fontSize: 16, color: '#003f7f' }} />
+            )
+          ) : (
+            <FilterList sx={{ fontSize: 16, color: 'action.disabled' }} />
+          )}
+        </Box>
+      </Box>
+    </TableCell>
+  );
 
   const stats = getDashboardStats();
 
@@ -183,69 +282,80 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
             </Tabs>
           </Box>
 
-          {/* Filters */}
-          <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+          {/* Unified Search Bar */}
+          <Box sx={{ mb: 3 }}>
             <TextField
-              placeholder="Search by name or number..."
+              fullWidth
+              placeholder={`Search ${activeTab === 0 ? 'cases' : 'policies'} by client name, ${activeTab === 0 ? 'case number' : 'policy number'}, product type, ${activeTab === 0 ? 'underwriter' : 'premium mode'}...`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setSearchTerm('');
+                }
+              }}
               InputProps={{
                 startAdornment: <Search sx={{ mr: 1, color: 'action.active' }} />,
+                endAdornment: searchTerm && (
+                  <IconButton
+                    size="small"
+                    onClick={() => setSearchTerm('')}
+                    sx={{ mr: 1 }}
+                  >
+                    <Typography variant="body2" sx={{ color: 'action.active' }}>✕</Typography>
+                  </IconButton>
+                ),
               }}
-              size="small"
-              sx={{ minWidth: 250 }}
+              size="medium"
+              sx={{ 
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: '#f8f9fa',
+                  '&:hover': {
+                    backgroundColor: '#ffffff',
+                  },
+                  '&.Mui-focused': {
+                    backgroundColor: '#ffffff',
+                  }
+                }
+              }}
             />
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Status</InputLabel>
-              <Select
-                value={statusFilter}
-                label="Status"
-                onChange={(e) => setStatusFilter(e.target.value)}
-              >
-                <MenuItem value="">All Status</MenuItem>
-                {activeTab === 0 ? (
-                  <>
-                    <MenuItem value="Submitted">Submitted</MenuItem>
-                    <MenuItem value="Under Review">Under Review</MenuItem>
-                    <MenuItem value="Additional Requirements">Additional Requirements</MenuItem>
-                    <MenuItem value="Approved">Approved</MenuItem>
-                    <MenuItem value="Declined">Declined</MenuItem>
-                  </>
-                ) : (
-                  <>
-                    <MenuItem value="Active">Active</MenuItem>
-                    <MenuItem value="Lapsed">Lapsed</MenuItem>
-                    <MenuItem value="Surrendered">Surrendered</MenuItem>
-                    <MenuItem value="Paid Up">Paid Up</MenuItem>
-                  </>
-                )}
-              </Select>
-            </FormControl>
-            <FormControl size="small" sx={{ minWidth: 180 }}>
-              <InputLabel>Product Type</InputLabel>
-              <Select
-                value={productFilter}
-                label="Product Type"
-                onChange={(e) => setProductFilter(e.target.value)}
-              >
-                <MenuItem value="">All Products</MenuItem>
-                <MenuItem value="Term Life">Term Life</MenuItem>
-                <MenuItem value="Whole Life">Whole Life</MenuItem>
-                <MenuItem value="Universal Life">Universal Life</MenuItem>
-                <MenuItem value="Variable Universal Life">Variable Universal Life</MenuItem>
-              </Select>
-            </FormControl>
+            {searchTerm && (
+              <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                Found {activeTab === 0 ? filteredCases.length : filteredPolicies.length} {activeTab === 0 ? 'case(s)' : 'policy(ies)'} matching "{searchTerm}"
+              </Typography>
+            )}
+          </Box>
+
+          {/* Clear/Reset Actions */}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              {sortField && sortDirection && (
+                <Chip 
+                  label={`Sorted by ${sortField} (${sortDirection === 'asc' ? 'A→Z' : 'Z→A'})`}
+                  color="primary"
+                  variant="outlined"
+                  size="small"
+                  onDelete={() => {
+                    setSortField('');
+                    setSortDirection(null);
+                  }}
+                />
+              )}
+              <Typography variant="body2" color="text.secondary">
+                Click column headers to sort • Click again to reverse • Click third time to clear
+              </Typography>
+            </Box>
             <Button
               variant="outlined"
               startIcon={<Refresh />}
               onClick={() => {
                 setSearchTerm('');
-                setStatusFilter('');
-                setProductFilter('');
+                setSortField('');
+                setSortDirection(null);
               }}
               size="small"
             >
-              Clear
+              Clear All
             </Button>
           </Box>
         </CardContent>
@@ -257,13 +367,13 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-                <TableCell sx={{ fontWeight: 600 }}>Case Number</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Client Name</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Product Type</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Coverage</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Premium</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Last Updated</TableCell>
+                <SortableTableCell field="caseNumber">Case Number</SortableTableCell>
+                <SortableTableCell field="clientName">Client Name</SortableTableCell>
+                <SortableTableCell field="productType">Product Type</SortableTableCell>
+                <SortableTableCell field="coverageAmount">Coverage</SortableTableCell>
+                <SortableTableCell field="annualPremium">Premium</SortableTableCell>
+                <SortableTableCell field="status">Status</SortableTableCell>
+                <SortableTableCell field="lastUpdated">Last Updated</SortableTableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -303,13 +413,13 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
-                <TableCell sx={{ fontWeight: 600 }}>Policy Number</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Client Name</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Product Type</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Coverage</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Premium</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 600 }}>Renewal Date</TableCell>
+                <SortableTableCell field="policyNumber">Policy Number</SortableTableCell>
+                <SortableTableCell field="clientName">Client Name</SortableTableCell>
+                <SortableTableCell field="productType">Product Type</SortableTableCell>
+                <SortableTableCell field="coverageAmount">Coverage</SortableTableCell>
+                <SortableTableCell field="annualPremium">Premium</SortableTableCell>
+                <SortableTableCell field="status">Status</SortableTableCell>
+                <SortableTableCell field="renewalDate">Renewal Date</SortableTableCell>
                 <TableCell sx={{ fontWeight: 600 }}>Actions</TableCell>
               </TableRow>
             </TableHead>
