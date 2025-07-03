@@ -10,6 +10,7 @@ import { ProfileManagement } from './components/profile/ProfileManagement';
 import NotificationPage from './components/notifications/NotificationPage';
 import SelfServicePage from './components/self-service/SelfServicePage';
 import CommissionDashboard from './components/commissions/CommissionDashboard';
+import MarketingPage from './components/marketing/MarketingPage';
 import { 
   mockUser, 
   mockPreferences, 
@@ -124,6 +125,8 @@ function App() {
         return <SelfServicePage />;
       case 'commissions':
         return <CommissionDashboard />;
+      case 'marketing':
+        return <MarketingPage />;
       default:
         return <UnifiedDashboard cases={mockCases} policies={mockPolicies} />;
     }

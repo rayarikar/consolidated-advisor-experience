@@ -194,3 +194,66 @@ export interface Notification {
   dueDate?: string;
   urgencyLevel?: 'Immediate' | 'This Week' | 'This Month' | 'Future';
 }
+
+export interface InsuranceProduct {
+  id: string;
+  name: string;
+  productType: 'Term Life' | 'Whole Life' | 'Universal Life' | 'Variable Universal Life' | 'Indexed Universal Life';
+  category: 'Individual' | 'Group' | 'Business';
+  description: string;
+  keyFeatures: string[];
+  targetMarket: string[];
+  ageRanges: {
+    min: number;
+    max: number;
+  };
+  coverageAmounts: {
+    min: number;
+    max: number;
+  };
+  premiumStructure: 'Level' | 'Increasing' | 'Flexible' | 'Single Premium';
+  underwritingClass: 'Simplified Issue' | 'Full Underwriting' | 'Guaranteed Issue' | 'No Medical Exam';
+  availableRiders: string[];
+  states: string[];
+  competitiveAdvantages: string[];
+  illustration?: string;
+  rateBook?: string;
+  marketingMaterials?: string[];
+}
+
+export interface Rider {
+  id: string;
+  name: string;
+  type: 'Benefit' | 'Waiver' | 'Accelerated Death Benefit' | 'Income' | 'Long-Term Care';
+  description: string;
+  cost: 'Included' | 'Additional Premium' | 'Percentage of Base Premium';
+  compatibleProducts: string[];
+  ageRestrictions?: {
+    min: number;
+    max: number;
+  };
+  coverageLimits?: {
+    min: number;
+    max: number;
+  };
+  keyBenefits: string[];
+  exclusions: string[];
+}
+
+export interface InsuranceForm {
+  id: string;
+  name: string;
+  formNumber: string;
+  category: 'New Business' | 'Policy Service' | 'Claims' | 'Compliance';
+  type: 'Application' | 'Amendment' | 'Request' | 'Declaration' | 'Authorization';
+  description: string;
+  applicableProducts: string[];
+  submissionMethod: 'Electronic' | 'Paper' | 'Both';
+  processingTime: string;
+  externalUrl?: string;
+  internalForm: boolean;
+  lastUpdated: string;
+  version: string;
+  requirements: string[];
+  relatedForms?: string[];
+}

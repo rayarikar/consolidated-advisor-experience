@@ -27,7 +27,8 @@ import {
   SupportAgent,
   Notifications,
   AccountCircle,
-  ExitToApp
+  ExitToApp,
+  Business
 } from '@mui/icons-material';
 import { User } from '../../types';
 import { mockNotifications } from '../../data/mockData';
@@ -72,6 +73,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     { id: 'preferences', label: 'Notifications', icon: <Notifications /> },
     { id: 'self-service', label: 'Self Service', icon: <SupportAgent /> },
     { id: 'commissions', label: 'Commissions', icon: <AttachMoney /> },
+    { id: 'marketing', label: 'Marketing', icon: <Business /> },
   ];
 
   const drawer = (
