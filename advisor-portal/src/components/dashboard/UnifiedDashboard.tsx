@@ -26,17 +26,16 @@ import {
   ArrowUpward,
   ArrowDownward,
   FilterList,
-  Folder,
-  Policy as PolicyIcon,
-  AccountBalance,
-  Payments,
   FileDownload
 } from '@mui/icons-material';
-import { Case, Policy } from '../../types';
+import { Case, Policy, Notification } from '../../types';
+import { CriticalNotifications } from './CriticalNotifications';
 
 interface UnifiedDashboardProps {
   cases: Case[];
   policies: Policy[];
+  notifications: Notification[];
+  onNavigateToNotifications: () => void;
 }
 
 type SortDirection = 'asc' | 'desc' | null;
@@ -44,7 +43,7 @@ type SortField = string;
 
 type ViewFilter = 'all' | 'cases' | 'policies';
 
-export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, policies }) => {
+export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, policies, notifications, onNavigateToNotifications }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('');
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
@@ -157,21 +156,6 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
     return statusColors[status] || 'default';
   };
 
-  const getDashboardStats = () => {
-    const activeCases = cases.filter(c => ['Submitted', 'Under Review', 'Additional Requirements', 'Approved'].includes(c.status));
-    const activePolicies = policies.filter(p => p.status === 'Active');
-    const totalCoverage = [...activeCases, ...activePolicies].reduce((sum, item) => sum + item.coverageAmount, 0);
-    const totalPremium = [...activeCases, ...activePolicies].reduce((sum, item) => sum + item.annualPremium, 0);
-    
-    return {
-      activeCases: activeCases.length,
-      activePolicies: activePolicies.length,
-      totalItems: activeCases.length + activePolicies.length,
-      totalCoverage,
-      totalPremium
-    };
-  };
-
   const SortableTableCell = ({ field, children }: { field: string; children: React.ReactNode }) => (
     <TableCell 
       sx={{ 
@@ -200,8 +184,6 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
       </Box>
     </TableCell>
   );
-
-  const stats = getDashboardStats();
 
   const exportToExcel = () => {
     const csvContent = [
@@ -238,61 +220,15 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
         Dashboard
       </Typography>
 
-      {/* Key Metrics */}
-      <Box sx={{ display: 'flex', gap: 3, mb: 3, flexWrap: 'wrap' }}>
-        <Card sx={{ flex: 1, minWidth: 200 }}>
-          <CardContent sx={{ py: 2, textAlign: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
-              <Folder sx={{ fontSize: 24, color: '#003f7f', mr: 1 }} />
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                Active Cases
-              </Typography>
-            </Box>
-            <Typography variant="h4" sx={{ color: '#003f7f', fontWeight: 600 }}>
-              {stats.activeCases}
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card sx={{ flex: 1, minWidth: 200 }}>
-          <CardContent sx={{ py: 2, textAlign: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
-              <PolicyIcon sx={{ fontSize: 24, color: '#0066cc', mr: 1 }} />
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                Active Policies
-              </Typography>
-            </Box>
-            <Typography variant="h4" sx={{ color: '#0066cc', fontWeight: 600 }}>
-              {stats.activePolicies}
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card sx={{ flex: 1, minWidth: 200 }}>
-          <CardContent sx={{ py: 2, textAlign: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
-              <AccountBalance sx={{ fontSize: 24, color: '#10b981', mr: 1 }} />
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                Total Coverage
-              </Typography>
-            </Box>
-            <Typography variant="h4" sx={{ color: '#10b981', fontWeight: 600 }}>
-              ${(stats.totalCoverage / 1000000).toFixed(1)}M
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card sx={{ flex: 1, minWidth: 200 }}>
-          <CardContent sx={{ py: 2, textAlign: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, justifyContent: 'center' }}>
-              <Payments sx={{ fontSize: 24, color: '#f59e0b', mr: 1 }} />
-              <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
-                Annual Premium
-              </Typography>
-            </Box>
-            <Typography variant="h4" sx={{ color: '#f59e0b', fontWeight: 600 }}>
-              ${(stats.totalPremium / 1000).toFixed(0)}K
-            </Typography>
-          </CardContent>
-        </Card>
-      </Box>
+      {/* Critical Notifications */}
+      <CriticalNotifications 
+        notifications={notifications}
+        onViewAllNotifications={onNavigateToNotifications}
+        onViewNotificationDetails={(notificationId) => {
+          // Navigate to notifications tab with specific notification
+          onNavigateToNotifications();
+        }}
+      />
 
       {/* Bubble Filters */}
       <Card sx={{ mb: 3 }}>
@@ -313,7 +249,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
                 }}
                 startIcon={<Assignment />}
               >
-                All ({stats.totalItems})
+                All ({cases.length + policies.length})
               </Button>
               <Button
                 variant={viewFilter === 'cases' ? 'contained' : 'outlined'}
@@ -326,7 +262,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
                 }}
                 startIcon={<Assignment />}
               >
-                Cases ({stats.activeCases})
+                Cases ({cases.length})
               </Button>
               <Button
                 variant={viewFilter === 'policies' ? 'contained' : 'outlined'}
@@ -339,7 +275,7 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
                 }}
                 startIcon={<AttachMoney />}
               >
-                Policies ({stats.activePolicies})
+                Policies ({policies.length})
               </Button>
             </Box>
           </Box>

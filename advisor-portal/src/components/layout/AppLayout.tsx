@@ -28,7 +28,8 @@ import {
   Notifications,
   AccountCircle,
   ExitToApp,
-  Business
+  Business,
+  SmartToy
 } from '@mui/icons-material';
 import { User } from '../../types';
 import { mockNotifications } from '../../data/mockData';
@@ -41,6 +42,7 @@ interface AppLayoutProps {
   currentPage: string;
   onPageChange: (page: string) => void;
   onLogout: () => void;
+  onToggleCopilot?: () => void;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -48,7 +50,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   user,
   currentPage,
   onPageChange,
-  onLogout
+  onLogout,
+  onToggleCopilot
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -140,12 +143,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           
           <IconButton 
             color="inherit" 
-            sx={{ mr: 2 }}
+            sx={{ mr: 1 }}
             onClick={() => onPageChange('preferences')}
           >
             <Badge badgeContent={unreadNotifications} color="error">
               <Notifications />
             </Badge>
+          </IconButton>
+
+          <IconButton 
+            color="inherit" 
+            sx={{ mr: 2 }}
+            onClick={onToggleCopilot}
+            title="Prudential Copilot"
+          >
+            <SmartToy />
           </IconButton>
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>

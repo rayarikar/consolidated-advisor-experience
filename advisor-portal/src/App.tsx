@@ -11,13 +11,15 @@ import NotificationPage from './components/notifications/NotificationPage';
 import SelfServicePage from './components/self-service/SelfServicePage';
 import CommissionDashboard from './components/commissions/CommissionDashboard';
 import MarketingPage from './components/marketing/MarketingPage';
+import { CopilotPanel } from './components/copilot/CopilotPanel';
 import { 
   mockUser, 
   mockPreferences, 
   mockCases, 
   mockPolicies, 
   mockCommissions, 
-  mockSelfServiceRequests 
+  mockSelfServiceRequests,
+  mockNotifications
 } from './data/mockData';
 import { User, Preferences, SelfServiceRequest } from './types';
 
@@ -29,6 +31,8 @@ function App() {
   const [userPreferences, setUserPreferences] = useState<Preferences>(mockPreferences);
   const [selfServiceRequests, setSelfServiceRequests] = useState(mockSelfServiceRequests);
   const [authError, setAuthError] = useState('');
+  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  const [isCopilotMinimized, setIsCopilotMinimized] = useState(false);
 
   // Load from localStorage on component mount
   useEffect(() => {
@@ -113,10 +117,36 @@ function App() {
     localStorage.setItem('selfServiceRequests', JSON.stringify(updatedRequests));
   };
 
+  const handleToggleCopilot = () => {
+    if (isCopilotMinimized) {
+      setIsCopilotMinimized(false);
+      setIsCopilotOpen(true);
+    } else {
+      setIsCopilotOpen(!isCopilotOpen);
+    }
+  };
+
+  const handleCloseCopilot = () => {
+    setIsCopilotOpen(false);
+    setIsCopilotMinimized(false);
+  };
+
+  const handleMinimizeCopilot = () => {
+    setIsCopilotOpen(false);
+    setIsCopilotMinimized(true);
+  };
+
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'dashboard':
-        return <UnifiedDashboard cases={mockCases} policies={mockPolicies} />;
+        return (
+          <UnifiedDashboard 
+            cases={mockCases} 
+            policies={mockPolicies} 
+            notifications={mockNotifications}
+            onNavigateToNotifications={() => setCurrentPage('preferences')}
+          />
+        );
       case 'profile':
         return <ProfileManagement user={currentUser} onUpdateProfile={handleUpdateProfile} />;
       case 'preferences':
@@ -128,7 +158,14 @@ function App() {
       case 'marketing':
         return <MarketingPage />;
       default:
-        return <UnifiedDashboard cases={mockCases} policies={mockPolicies} />;
+        return (
+          <UnifiedDashboard 
+            cases={mockCases} 
+            policies={mockPolicies} 
+            notifications={mockNotifications}
+            onNavigateToNotifications={() => setCurrentPage('preferences')}
+          />
+        );
     }
   };
 
@@ -161,9 +198,16 @@ function App() {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
         onLogout={handleLogout}
+        onToggleCopilot={handleToggleCopilot}
       >
         {renderCurrentPage()}
       </AppLayout>
+      
+      <CopilotPanel
+        isOpen={isCopilotOpen}
+        onClose={handleCloseCopilot}
+        onMinimize={handleMinimizeCopilot}
+      />
     </ThemeProvider>
   );
 }
