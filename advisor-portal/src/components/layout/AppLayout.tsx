@@ -29,7 +29,8 @@ import {
   AccountCircle,
   ExitToApp,
   Business,
-  SmartToy
+  SmartToy,
+  Search
 } from '@mui/icons-material';
 import { User } from '../../types';
 import { mockNotifications } from '../../data/mockData';
@@ -43,6 +44,7 @@ interface AppLayoutProps {
   onPageChange: (page: string) => void;
   onLogout: () => void;
   onToggleCopilot?: () => void;
+  onOpenSearch?: () => void;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -51,7 +53,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   currentPage,
   onPageChange,
   onLogout,
-  onToggleCopilot
+  onToggleCopilot,
+  onOpenSearch
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -141,6 +144,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             {menuItems.find(item => item.id === currentPage)?.label || 'Dashboard'}
           </Typography>
           
+          <IconButton 
+            color="inherit" 
+            sx={{ mr: 1 }}
+            onClick={onOpenSearch}
+            title="Search Advisor Portal"
+          >
+            <Search />
+          </IconButton>
+
           <IconButton 
             color="inherit" 
             sx={{ mr: 1 }}

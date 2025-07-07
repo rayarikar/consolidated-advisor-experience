@@ -12,6 +12,8 @@ import SelfServicePage from './components/self-service/SelfServicePage';
 import CommissionDashboard from './components/commissions/CommissionDashboard';
 import MarketingPage from './components/marketing/MarketingPage';
 import { CopilotPanel } from './components/copilot/CopilotPanel';
+import { GlobalSearchModal } from './components/search/GlobalSearchModal';
+import { SearchResultsPage } from './components/search/SearchResultsPage';
 import { 
   mockUser, 
   mockPreferences, 
@@ -33,6 +35,8 @@ function App() {
   const [authError, setAuthError] = useState('');
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [isCopilotMinimized, setIsCopilotMinimized] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Load from localStorage on component mount
   useEffect(() => {
@@ -126,6 +130,24 @@ function App() {
     }
   };
 
+  const handleOpenSearch = () => {
+    setSearchModalOpen(true);
+  };
+
+  const handleCloseSearch = () => {
+    setSearchModalOpen(false);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage('search-results');
+  };
+
+  const handleBackFromSearch = () => {
+    setCurrentPage('dashboard');
+    setSearchQuery('');
+  };
+
   const handleCloseCopilot = () => {
     setIsCopilotOpen(false);
     setIsCopilotMinimized(false);
@@ -157,6 +179,14 @@ function App() {
         return <CommissionDashboard />;
       case 'marketing':
         return <MarketingPage />;
+      case 'search-results':
+        return (
+          <SearchResultsPage 
+            searchQuery={searchQuery}
+            onBack={handleBackFromSearch}
+            onNewSearch={handleSearch}
+          />
+        );
       default:
         return (
           <UnifiedDashboard 
@@ -199,9 +229,16 @@ function App() {
         onPageChange={setCurrentPage}
         onLogout={handleLogout}
         onToggleCopilot={handleToggleCopilot}
+        onOpenSearch={handleOpenSearch}
       >
         {renderCurrentPage()}
       </AppLayout>
+      
+      <GlobalSearchModal
+        open={searchModalOpen}
+        onClose={handleCloseSearch}
+        onSearch={handleSearch}
+      />
       
       <CopilotPanel
         isOpen={isCopilotOpen}
