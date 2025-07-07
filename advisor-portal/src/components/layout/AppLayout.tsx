@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Drawer,
@@ -15,14 +15,13 @@ import {
   Avatar,
   Menu,
   MenuItem,
-  Badge
+  Badge,
+  Tooltip
 } from '@mui/material';
 import {
   Menu as MenuIcon,
   Dashboard,
   Person,
-  Settings,
-  Assignment,
   AttachMoney,
   SupportAgent,
   Notifications,
@@ -30,12 +29,15 @@ import {
   ExitToApp,
   Business,
   SmartToy,
-  Search
+  Search,
+  ChevronLeft,
+  ChevronRight
 } from '@mui/icons-material';
 import { User } from '../../types';
 import { mockNotifications } from '../../data/mockData';
 
 const drawerWidth = 240;
+const collapsedDrawerWidth = 72;
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -58,11 +60,29 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   
   const unreadNotifications = mockNotifications.filter(n => !n.isRead).length;
 
+  // Load collapse state from localStorage
+  useEffect(() => {
+    const savedCollapseState = localStorage.getItem('sidebarCollapsed');
+    if (savedCollapseState !== null) {
+      setIsCollapsed(JSON.parse(savedCollapseState));
+    }
+  }, []);
+
+  // Save collapse state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleSidebarToggle = () => {
+    setIsCollapsed(!isCollapsed);
   };
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -85,36 +105,61 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const drawer = (
     <div>
       <Toolbar>
-        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-          <Typography variant="h6" sx={{ color: '#003f7f', fontWeight: 600 }}>
-            Advisor Portal
-          </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: isCollapsed ? 'center' : 'space-between' }}>
+          {!isCollapsed && (
+            <Typography variant="h6" sx={{ color: '#003f7f', fontWeight: 600 }}>
+              Advisor Portal
+            </Typography>
+          )}
+          <IconButton
+            onClick={handleSidebarToggle}
+            size="small"
+            sx={{
+              color: '#003f7f',
+              ml: isCollapsed ? 0 : 'auto',
+            }}
+          >
+            {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+          </IconButton>
         </Box>
       </Toolbar>
       <Divider />
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.id} disablePadding>
-            <ListItemButton
-              selected={currentPage === item.id}
-              onClick={() => onPageChange(item.id)}
-              sx={{
-                '&.Mui-selected': {
-                  backgroundColor: '#e3f2fd',
-                  borderRight: '3px solid #003f7f',
-                  '& .MuiListItemIcon-root': {
-                    color: '#003f7f',
+            <Tooltip title={isCollapsed ? item.label : ''} placement="right">
+              <ListItemButton
+                selected={currentPage === item.id}
+                onClick={() => onPageChange(item.id)}
+                sx={{
+                  minHeight: 48,
+                  justifyContent: isCollapsed ? 'center' : 'initial',
+                  px: 2.5,
+                  '&.Mui-selected': {
+                    backgroundColor: '#e3f2fd',
+                    borderRight: '3px solid #003f7f',
+                    '& .MuiListItemIcon-root': {
+                      color: '#003f7f',
+                    },
+                    '& .MuiListItemText-primary': {
+                      color: '#003f7f',
+                      fontWeight: 600,
+                    },
                   },
-                  '& .MuiListItemText-primary': {
-                    color: '#003f7f',
-                    fontWeight: 600,
-                  },
-                },
-              }}
-            >
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.label} />
-            </ListItemButton>
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: isCollapsed ? 0 : 3,
+                    justifyContent: 'center',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                {!isCollapsed && <ListItemText primary={item.label} />}
+              </ListItemButton>
+            </Tooltip>
           </ListItem>
         ))}
       </List>
@@ -126,8 +171,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       <AppBar
         position="fixed"
         sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
+          width: { sm: `calc(100% - ${isCollapsed ? collapsedDrawerWidth : drawerWidth}px)` },
+          ml: { sm: `${isCollapsed ? collapsedDrawerWidth : drawerWidth}px` },
+          transition: 'all 0.3s ease',
         }}
       >
         <Toolbar>
@@ -140,8 +186,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {menuItems.find(item => item.id === currentPage)?.label || 'Dashboard'}
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: 'white', fontWeight: 600 }}>
+            {isCollapsed ? 'Advisor Portal' : (menuItems.find(item => item.id === currentPage)?.label || 'Dashboard')}
           </Typography>
           
           <IconButton 
@@ -219,7 +265,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
       <Box
         component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        sx={{ width: { sm: isCollapsed ? collapsedDrawerWidth : drawerWidth }, flexShrink: { sm: 0 } }}
         aria-label="mailbox folders"
       >
         <Drawer
@@ -240,7 +286,12 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { 
+              boxSizing: 'border-box', 
+              width: isCollapsed ? collapsedDrawerWidth : drawerWidth,
+              transition: 'width 0.3s ease',
+              overflowX: 'hidden',
+            },
           }}
           open
         >
@@ -253,10 +304,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         sx={{
           flexGrow: 1,
           p: 3,
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          width: { sm: `calc(100% - ${isCollapsed ? collapsedDrawerWidth : drawerWidth}px)` },
           mt: 8,
           backgroundColor: '#f8f9fa',
           minHeight: 'calc(100vh - 64px)',
+          transition: 'all 0.3s ease',
         }}
       >
         {children}
