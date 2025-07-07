@@ -11,6 +11,7 @@ import NotificationPage from './components/notifications/NotificationPage';
 import SelfServicePage from './components/self-service/SelfServicePage';
 import CommissionDashboard from './components/commissions/CommissionDashboard';
 import MarketingPage from './components/marketing/MarketingPage';
+import { IllustrationPage } from './components/illustrations/IllustrationPage';
 import { CopilotPanel } from './components/copilot/CopilotPanel';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal';
 import { SearchResultsPage } from './components/search/SearchResultsPage';
@@ -179,6 +180,8 @@ function App() {
         return <CommissionDashboard />;
       case 'marketing':
         return <MarketingPage />;
+      case 'illustrations':
+        return <IllustrationPage />;
       case 'search-results':
         return (
           <SearchResultsPage 

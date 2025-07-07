@@ -31,7 +31,8 @@ import {
   SmartToy,
   Search,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Assessment
 } from '@mui/icons-material';
 import { User } from '../../types';
 import { mockNotifications } from '../../data/mockData';
@@ -95,6 +96,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Dashboard /> },
+    { id: 'illustrations', label: 'Illustrations', icon: <Assessment /> },
     { id: 'profile', label: 'Profile', icon: <Person /> },
     { id: 'preferences', label: 'Notifications', icon: <Notifications /> },
     { id: 'self-service', label: 'Self Service', icon: <SupportAgent /> },

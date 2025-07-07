@@ -258,3 +258,85 @@ export interface InsuranceForm {
   requirements: string[];
   relatedForms?: string[];
 }
+
+export interface ClientInfo {
+  name: string;
+  age: number;
+  gender: 'Male' | 'Female';
+  smokerStatus: 'Smoker' | 'Non-Smoker';
+  healthClass: 'Super Preferred' | 'Preferred Plus' | 'Preferred' | 'Standard Plus' | 'Standard' | 'Table Rated';
+  state: string;
+}
+
+export interface IllustrationAssumptions {
+  currentInterestRate: number;
+  guaranteedInterestRate: number;
+  dividendScale: 'Current' | 'Zero';
+  expenseCharges: number;
+  mortalityTable: string;
+  surrenderChargeSchedule?: number[];
+}
+
+export interface YearlyProjection {
+  policyYear: number;
+  age: number;
+  premiumPaid: number;
+  cumulativePremiums: number;
+  deathBenefit: number;
+  cashValue: {
+    guaranteed: number;
+    current: number;
+  };
+  netAmount: number;
+  loanBalance?: number;
+  dividends?: number;
+  endOfYearValues: {
+    surrenderValue: number;
+    paidUpValue: number;
+  };
+}
+
+export interface IllustrationSummary {
+  totalPremiumsPaid: number;
+  cashValueAt65: number;
+  cashValueAt100: number;
+  deathBenefitAt65: number;
+  internalRateOfReturn: number;
+  breakEvenYear: number;
+  maximumOutlay: number;
+}
+
+export interface IllustrationRequest {
+  id: string;
+  clientInfo: ClientInfo;
+  productId: string;
+  productName: string;
+  productType: 'Term Life' | 'Whole Life' | 'Universal Life' | 'Variable Universal Life' | 'Indexed Universal Life';
+  coverageAmount: number;
+  premiumType: 'Target Premium' | 'Minimum Premium' | 'Maximum Premium' | 'Custom Amount';
+  premiumAmount?: number;
+  premiumMode: 'Annual' | 'Semi-Annual' | 'Quarterly' | 'Monthly';
+  paymentDuration: 'Life' | 'To Age 65' | 'To Age 100' | '10 Years' | '15 Years' | '20 Years' | 'Single Pay';
+  assumptions: IllustrationAssumptions;
+  illustrationEndAge: number;
+  options: {
+    showGuaranteed: boolean;
+    showCurrent: boolean;
+    includeDividends: boolean;
+    includeLoans: boolean;
+  };
+}
+
+export interface IllustrationResult {
+  id: string;
+  request: IllustrationRequest;
+  projections: YearlyProjection[];
+  summary: IllustrationSummary;
+  createdDate: string;
+  lastModified: string;
+  createdBy: string;
+  status: 'Draft' | 'Finalized' | 'Presented' | 'Archived';
+  clientApproved?: boolean;
+  notes?: string;
+  complianceDisclosures: string[];
+}
