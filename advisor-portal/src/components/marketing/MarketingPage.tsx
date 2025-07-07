@@ -8,7 +8,6 @@ import {
   Grid,
   IconButton,
   InputAdornment,
-  Link,
   Paper,
   Stack,
   Tab,
@@ -31,15 +30,13 @@ import {
   Description as DescriptionIcon,
   Assignment as AssignmentIcon,
   Business as BusinessIcon,
-  Group as GroupIcon,
-  Person as PersonIcon,
   ExpandMore as ExpandMoreIcon,
   CheckCircle as CheckCircleIcon,
   Star as StarIcon,
   Download as DownloadIcon,
 } from '@mui/icons-material';
 import { mockProducts, mockRiders, mockForms } from '../../data/marketingData';
-import { InsuranceProduct, Rider, InsuranceForm } from '../../types';
+import { InsuranceProduct, InsuranceForm } from '../../types';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -73,8 +70,6 @@ export default function MarketingPage() {
   const [formSearch, setFormSearch] = useState('');
   const [selectedProductType, setSelectedProductType] = useState<string>('All Types');
   const [selectedFormCategory, setSelectedFormCategory] = useState<string>('All Categories');
-  const [riderSearch, setRiderSearch] = useState('');
-  const [showRiders, setShowRiders] = useState(false);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);

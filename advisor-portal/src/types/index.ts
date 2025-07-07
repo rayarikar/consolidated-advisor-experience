@@ -214,6 +214,7 @@ export interface InsuranceProduct {
   premiumStructure: 'Level' | 'Increasing' | 'Flexible' | 'Single Premium';
   underwritingClass: 'Simplified Issue' | 'Full Underwriting' | 'Guaranteed Issue' | 'No Medical Exam';
   availableRiders: string[];
+  riderIds?: string[];
   states: string[];
   competitiveAdvantages: string[];
   illustration?: string;
@@ -224,9 +225,9 @@ export interface InsuranceProduct {
 export interface Rider {
   id: string;
   name: string;
-  type: 'Benefit' | 'Waiver' | 'Accelerated Death Benefit' | 'Income' | 'Long-Term Care';
+  type: 'Benefit' | 'Waiver' | 'Accelerated Death Benefit' | 'Income' | 'Long-Term Care' | 'Conversion' | 'Enhancement' | 'Income Protection' | 'Guarantee' | 'Investment';
   description: string;
-  cost: 'Included' | 'Additional Premium' | 'Percentage of Base Premium';
+  cost: 'Included' | 'Additional Premium' | 'Percentage of Base Premium' | 'Dividend Allocation' | 'Management Fees';
   compatibleProducts: string[];
   ageRestrictions?: {
     min: number;

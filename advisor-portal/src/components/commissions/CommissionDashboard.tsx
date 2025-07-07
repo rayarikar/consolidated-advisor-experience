@@ -582,25 +582,25 @@ const CommissionDashboard: React.FC = () => {
           
           <Typography variant="subtitle1" sx={{ mb: 2 }}>Time Period:</Typography>
           <List>
-            <ListItem button onClick={() => handleDownload('monthly', 'pdf')}>
+            <ListItem sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }} onClick={() => handleDownload('monthly', 'pdf')}>
               <ListItemText 
                 primary="Current Month (July 2024)" 
                 secondary="Detailed monthly breakdown with all transactions"
               />
             </ListItem>
-            <ListItem button onClick={() => handleDownload('quarterly', 'pdf')}>
+            <ListItem sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }} onClick={() => handleDownload('quarterly', 'pdf')}>
               <ListItemText 
                 primary="Current Quarter (Q3 2024)" 
                 secondary="Quarterly summary with month-by-month totals"
               />
             </ListItem>
-            <ListItem button onClick={() => handleDownload('ytd', 'excel')}>
+            <ListItem sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }} onClick={() => handleDownload('ytd', 'excel')}>
               <ListItemText 
                 primary="Year-to-Date (2024)" 
                 secondary="Complete YTD analysis with trends and breakdowns"
               />
             </ListItem>
-            <ListItem button onClick={() => handleDownload('annual', 'pdf')}>
+            <ListItem sx={{ cursor: 'pointer', '&:hover': { bgcolor: 'action.hover' } }} onClick={() => handleDownload('annual', 'pdf')}>
               <ListItemText 
                 primary="Annual Tax Statement (2023)" 
                 secondary="IRS-compliant 1099 format for tax filing"
