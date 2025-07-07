@@ -163,7 +163,7 @@ const NotificationPage: React.FC = () => {
       <Card sx={{ mb: 3 }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <TextField
                 fullWidth
                 size="small"
@@ -179,7 +179,7 @@ const NotificationPage: React.FC = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Category</InputLabel>
                 <Select
@@ -200,7 +200,7 @@ const NotificationPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Priority</InputLabel>
                 <Select
@@ -216,7 +216,7 @@ const NotificationPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
+            <Grid size={{ xs: 12, sm: 6, md: 2 }}>
               <FormControl fullWidth size="small">
                 <InputLabel>Status</InputLabel>
                 <Select
@@ -231,7 +231,7 @@ const NotificationPage: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
               <Typography variant="body2" color="text.secondary">
                 Showing {filteredNotifications.length} of {notifications.length} notifications
               </Typography>
@@ -389,23 +389,23 @@ const NotificationPage: React.FC = () => {
 
                 <Grid container spacing={2}>
                   {selectedNotification.clientName && (
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <Typography variant="subtitle2">Client</Typography>
                       <Typography>{selectedNotification.clientName}</Typography>
                     </Grid>
                   )}
                   {selectedNotification.relatedNumber && (
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <Typography variant="subtitle2">Related Policy/Case</Typography>
                       <Typography>{selectedNotification.relatedNumber}</Typography>
                     </Grid>
                   )}
-                  <Grid item xs={12} sm={6}>
+                  <Grid size={{ xs: 12, sm: 6 }}>
                     <Typography variant="subtitle2">Created</Typography>
                     <Typography>{new Date(selectedNotification.createdDate).toLocaleString()}</Typography>
                   </Grid>
                   {selectedNotification.dueDate && (
-                    <Grid item xs={12} sm={6}>
+                    <Grid size={{ xs: 12, sm: 6 }}>
                       <Typography variant="subtitle2">Due Date</Typography>
                       <Typography color="error">{new Date(selectedNotification.dueDate).toLocaleString()}</Typography>
                     </Grid>

@@ -221,7 +221,7 @@ const SelfServicePage: React.FC = () => {
 
       {/* Summary Cards */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card sx={{ bgcolor: '#fff3e0', borderLeft: '4px solid #f57c00' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -241,7 +241,7 @@ const SelfServicePage: React.FC = () => {
           </Card>
         </Grid>
         
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card sx={{ bgcolor: '#e3f2fd', borderLeft: '4px solid #1976d2' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -259,7 +259,7 @@ const SelfServicePage: React.FC = () => {
           </Card>
         </Grid>
         
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card sx={{ bgcolor: '#f3e5f5', borderLeft: '4px solid #7b1fa2' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -277,7 +277,7 @@ const SelfServicePage: React.FC = () => {
           </Card>
         </Grid>
         
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <Card sx={{ bgcolor: '#e8f5e8', borderLeft: '4px solid #388e3c' }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -495,7 +495,7 @@ const SelfServicePage: React.FC = () => {
             <DialogContent>
               <Grid container spacing={3}>
                 {/* Request Details */}
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="h6" sx={{ mb: 2 }}>Request Details</Typography>
                   
                   <Stack spacing={2}>
@@ -543,7 +543,7 @@ const SelfServicePage: React.FC = () => {
                 </Grid>
 
                 {/* Compliance Checks */}
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <Typography variant="h6" sx={{ mb: 2 }}>Compliance Status</Typography>
                   
                   <List>
@@ -589,7 +589,7 @@ const SelfServicePage: React.FC = () => {
 
                 {/* Messages */}
                 {selectedRequest.messages.length > 0 && (
-                  <Grid item xs={12}>
+                  <Grid size={{ xs: 12 }}>
                     <Divider sx={{ my: 2 }} />
                     <Typography variant="h6" sx={{ mb: 2 }}>Client Messages</Typography>
                     {selectedRequest.messages.map((message) => (
@@ -611,7 +611,7 @@ const SelfServicePage: React.FC = () => {
                 )}
 
                 {/* Approval Comments */}
-                <Grid item xs={12}>
+                <Grid size={{ xs: 12 }}>
                   <Divider sx={{ my: 2 }} />
                   <Typography variant="h6" sx={{ mb: 2 }}>Advisor Comments</Typography>
                   <TextField

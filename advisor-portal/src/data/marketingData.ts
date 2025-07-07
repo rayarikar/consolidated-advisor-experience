@@ -18,7 +18,8 @@ export const mockProducts: InsuranceProduct[] = [
     coverageAmounts: { min: 100000, max: 10000000 },
     premiumStructure: 'Level',
     underwritingClass: 'Full Underwriting',
-    availableRiders: ['Waiver of Premium', 'Accidental Death', 'Term Conversion'],
+    availableRiders: ['1', '2', '6', '9', '10'],
+    riderIds: ['1', '2', '6', '9', '10'],
     states: ['NY', 'CA', 'TX', 'FL', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI'],
     competitiveAdvantages: [
       'Best-in-class conversion options',
@@ -47,6 +48,7 @@ export const mockProducts: InsuranceProduct[] = [
     premiumStructure: 'Level',
     underwritingClass: 'Full Underwriting',
     availableRiders: ['Paid-up Additions', 'Waiver of Premium', 'Accidental Death', 'Child Term'],
+    riderIds: ['1', '2', '5', '7', '8', '11'],
     states: ['NY', 'CA', 'TX', 'FL', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI', 'NJ', 'VA'],
     competitiveAdvantages: [
       'Strong dividend history',
@@ -75,6 +77,7 @@ export const mockProducts: InsuranceProduct[] = [
     premiumStructure: 'Flexible',
     underwritingClass: 'Full Underwriting',
     availableRiders: ['No-Lapse Guarantee', 'Waiver of Premium', 'Long-Term Care', 'Chronic Illness'],
+    riderIds: ['1', '2', '3', '4', '12', '13'],
     states: ['NY', 'CA', 'TX', 'FL', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI', 'NJ', 'VA', 'WA', 'AZ'],
     competitiveAdvantages: [
       'Industry-leading investment options',
@@ -103,6 +106,7 @@ export const mockProducts: InsuranceProduct[] = [
     premiumStructure: 'Flexible',
     underwritingClass: 'Full Underwriting',
     availableRiders: ['No-Lapse Guarantee', 'Waiver of Premium', 'Long-Term Care', 'Overlay'],
+    riderIds: ['1', '2', '3', '4', '12', '14'],
     states: ['NY', 'CA', 'TX', 'FL', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI', 'NJ', 'VA', 'WA', 'AZ', 'CO'],
     competitiveAdvantages: [
       'Award-winning investment options',
@@ -131,6 +135,7 @@ export const mockProducts: InsuranceProduct[] = [
     premiumStructure: 'Flexible',
     underwritingClass: 'Simplified Issue',
     availableRiders: ['No-Lapse Guarantee', 'Waiver of Premium', 'Long-Term Care', 'Accelerated Death Benefit'],
+    riderIds: ['1', '2', '3', '4', '12', '15'],
     states: ['NY', 'CA', 'TX', 'FL', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI', 'NJ', 'VA', 'WA', 'AZ', 'CO', 'OR'],
     competitiveAdvantages: [
       'Multiple index crediting methods',
@@ -159,6 +164,7 @@ export const mockProducts: InsuranceProduct[] = [
     premiumStructure: 'Level',
     underwritingClass: 'Guaranteed Issue',
     availableRiders: ['Accidental Death'],
+    riderIds: ['2'],
     states: ['NY', 'CA', 'TX', 'FL', 'PA', 'IL', 'OH', 'GA', 'NC', 'MI'],
     competitiveAdvantages: [
       'Fast approval process',
@@ -255,6 +261,69 @@ export const mockRiders: Rider[] = [
   },
   {
     id: '6',
+    name: 'Term Conversion Rider',
+    type: 'Conversion',
+    description: 'Allows conversion of term life insurance to permanent coverage without medical underwriting, providing future insurability protection.',
+    cost: 'Included',
+    compatibleProducts: ['1'],
+    ageRestrictions: { min: 18, max: 65 },
+    keyBenefits: [
+      'Convert to any permanent product',
+      'No medical exam required',
+      'Guaranteed insurability',
+      'Flexible conversion periods'
+    ],
+    exclusions: ['Conversion after age 65', 'Partial conversions on some products']
+  },
+  {
+    id: '7',
+    name: 'Paid-Up Additions Rider',
+    type: 'Enhancement',
+    description: 'Allows purchase of additional whole life insurance using dividends, accelerating cash value growth and death benefit increases.',
+    cost: 'Dividend Allocation',
+    compatibleProducts: ['2'],
+    keyBenefits: [
+      'Accelerated cash value growth',
+      'Increased death benefit',
+      'Tax-deferred accumulation',
+      'Flexible premium allocation'
+    ],
+    exclusions: ['Available only on participating whole life', 'Subject to dividend performance']
+  },
+  {
+    id: '8',
+    name: 'Family Income Rider',
+    type: 'Benefit',
+    description: 'Provides monthly income payments to beneficiaries for a specified period following the insured\'s death, ensuring family financial stability.',
+    cost: 'Additional Premium',
+    compatibleProducts: ['2'],
+    ageRestrictions: { min: 18, max: 55 },
+    keyBenefits: [
+      'Monthly income for 10, 15, or 20 years',
+      'Guaranteed payment periods',
+      'Inflation protection options',
+      'Tax-favorable treatment'
+    ],
+    exclusions: ['Suicide (first 2 years)', 'War exclusions apply']
+  },
+  {
+    id: '9',
+    name: 'Disability Income Rider',
+    type: 'Income Protection',
+    description: 'Provides monthly income replacement if the insured becomes totally disabled and unable to work in their occupation.',
+    cost: 'Additional Premium',
+    compatibleProducts: ['1'],
+    ageRestrictions: { min: 18, max: 55 },
+    keyBenefits: [
+      'Monthly income replacement',
+      'Own occupation definition',
+      '90-day elimination period',
+      'Benefits to age 65'
+    ],
+    exclusions: ['Pre-existing conditions', 'Self-inflicted injuries', 'Mental/nervous disorders']
+  },
+  {
+    id: '10',
     name: 'Return of Premium Rider',
     type: 'Benefit',
     description: 'Returns all premiums paid if the insured survives the term period, providing a "money-back guarantee" on term coverage.',
@@ -267,6 +336,83 @@ export const mockRiders: Rider[] = [
       'Encourages policy persistence'
     ],
     exclusions: ['Partial withdrawal penalties', 'Loan interest charges']
+  },
+  {
+    id: '11',
+    name: 'Spouse Term Rider',
+    type: 'Benefit',
+    description: 'Provides term life insurance coverage on the insured\'s spouse at affordable rates, with conversion options available.',
+    cost: 'Additional Premium',
+    compatibleProducts: ['2'],
+    ageRestrictions: { min: 18, max: 70 },
+    coverageLimits: { min: 10000, max: 500000 },
+    keyBenefits: [
+      'Affordable spouse coverage',
+      'Conversion options available',
+      'No separate medical exam',
+      'Renewable to age 65'
+    ],
+    exclusions: ['Divorce terminates coverage', 'Conversion age limits apply']
+  },
+  {
+    id: '12',
+    name: 'No-Lapse Guarantee Rider',
+    type: 'Guarantee',
+    description: 'Guarantees the policy will remain in force as long as minimum premiums are paid, regardless of cash value performance.',
+    cost: 'Additional Premium',
+    compatibleProducts: ['3', '4', '5'],
+    keyBenefits: [
+      'Guaranteed coverage for life',
+      'Protection against poor performance',
+      'Flexible premium options',
+      'Peace of mind protection'
+    ],
+    exclusions: ['Requires minimum premium payments', 'May limit cash value growth']
+  },
+  {
+    id: '13',
+    name: 'Enhanced Cash Value Rider',
+    type: 'Enhancement',
+    description: 'Provides enhanced crediting rates on cash value accumulation for universal life policies, maximizing growth potential.',
+    cost: 'Additional Premium',
+    compatibleProducts: ['3'],
+    keyBenefits: [
+      'Enhanced interest crediting',
+      'Accelerated cash value growth',
+      'Competitive returns',
+      'Flexible allocation options'
+    ],
+    exclusions: ['Subject to company performance', 'Rate adjustments possible']
+  },
+  {
+    id: '14',
+    name: 'Investment Overlay Rider',
+    type: 'Investment',
+    description: 'Provides access to additional investment options and professional portfolio management for variable universal life policies.',
+    cost: 'Management Fees',
+    compatibleProducts: ['4'],
+    keyBenefits: [
+      'Professional portfolio management',
+      'Diversified investment options',
+      'Risk management strategies',
+      'Rebalancing services'
+    ],
+    exclusions: ['Investment risk remains with policyholder', 'Management fees apply']
+  },
+  {
+    id: '15',
+    name: 'Index Enhancement Rider',
+    type: 'Enhancement',
+    description: 'Provides additional index options and enhanced participation rates for indexed universal life policies.',
+    cost: 'Additional Premium',
+    compatibleProducts: ['5'],
+    keyBenefits: [
+      'Multiple index strategies',
+      'Enhanced participation rates',
+      'Volatility control options',
+      'Downside protection'
+    ],
+    exclusions: ['Subject to caps and floors', 'Index performance limitations']
   }
 ];
 
