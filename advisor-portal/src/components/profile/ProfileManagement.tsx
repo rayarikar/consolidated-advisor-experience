@@ -13,6 +13,8 @@ import {
 } from '@mui/material';
 import { Edit, Save, Cancel } from '@mui/icons-material';
 import { User } from '../../types';
+import { CommunicationPreferences } from './CommunicationPreferences';
+import { mockAgentPreferences } from '../../data/preferencesData';
 
 interface ProfileManagementProps {
   user: User;
@@ -195,6 +197,11 @@ export const ProfileManagement: React.FC<ProfileManagementProps> = ({ user, onUp
             </Stack>
           </CardContent>
         </Card>
+      </Box>
+
+      {/* Communication Preferences Section */}
+      <Box sx={{ mt: 3 }}>
+        <CommunicationPreferences preferences={mockAgentPreferences} />
       </Box>
     </Box>
   );

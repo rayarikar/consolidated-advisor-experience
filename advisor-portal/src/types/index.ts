@@ -340,3 +340,135 @@ export interface IllustrationResult {
   notes?: string;
   complianceDisclosures: string[];
 }
+
+// Agent Preferences interfaces based on OpenAPI spec
+export interface AgentPreferences {
+  agentId: string;
+  communicationChannels: CommunicationChannels;
+  communicationTypes: CommunicationTypes;
+  businessHours: BusinessHours;
+  lastUpdated: string;
+}
+
+export interface CommunicationChannels {
+  email: EmailChannel;
+  sms: SmsChannel;
+  phone: PhoneChannel;
+  pushNotification: PushNotificationChannel;
+  mail: MailChannel;
+}
+
+export interface EmailChannel {
+  enabled: boolean;
+  address: string;
+  frequency: 'immediate' | 'daily' | 'weekly';
+}
+
+export interface SmsChannel {
+  enabled: boolean;
+  phoneNumber: string;
+  frequency: 'immediate' | 'daily' | 'weekly';
+}
+
+export interface PhoneChannel {
+  enabled: boolean;
+  phoneNumber: string;
+  timeSlots: TimeSlot[];
+}
+
+export interface PushNotificationChannel {
+  enabled: boolean;
+  deviceTokens: string[];
+}
+
+export interface MailChannel {
+  enabled: boolean;
+  address?: PostalAddress;
+}
+
+export interface PostalAddress {
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+}
+
+export interface TimeSlot {
+  dayOfWeek: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+  startTime: string;
+  endTime: string;
+}
+
+export interface CommunicationTypes {
+  leadAssignments: LeadAssignmentPreferences;
+  policyRenewals: PolicyRenewalPreferences;
+  claims: ClaimsPreferences;
+  compliance: CompliancePreferences;
+  marketing: MarketingPreferences;
+  training: TrainingPreferences;
+  commissions: CommissionPreferences;
+}
+
+export interface LeadAssignmentPreferences {
+  channels: ('email' | 'sms' | 'phone' | 'pushNotification' | 'mail')[];
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+}
+
+export interface PolicyRenewalPreferences {
+  channels: ('email' | 'sms' | 'phone' | 'pushNotification' | 'mail')[];
+  advanceNotice: number;
+}
+
+export interface ClaimsPreferences {
+  channels: ('email' | 'sms' | 'phone' | 'pushNotification' | 'mail')[];
+  urgentOnly: boolean;
+}
+
+export interface CompliancePreferences {
+  channels: ('email' | 'sms' | 'phone' | 'pushNotification' | 'mail')[];
+  mandatory: boolean;
+}
+
+export interface MarketingPreferences {
+  channels: ('email' | 'sms' | 'phone' | 'pushNotification' | 'mail')[];
+  optIn: boolean;
+}
+
+export interface TrainingPreferences {
+  channels: ('email' | 'sms' | 'phone' | 'pushNotification' | 'mail')[];
+  reminders: boolean;
+}
+
+export interface CommissionPreferences {
+  channels: ('email' | 'sms' | 'phone' | 'pushNotification' | 'mail')[];
+  statements: boolean;
+}
+
+export interface BusinessHours {
+  timezone: string;
+  schedule: WeeklySchedule;
+}
+
+export interface WeeklySchedule {
+  monday: DaySchedule;
+  tuesday: DaySchedule;
+  wednesday: DaySchedule;
+  thursday: DaySchedule;
+  friday: DaySchedule;
+  saturday: DaySchedule;
+  sunday: DaySchedule;
+}
+
+export interface DaySchedule {
+  isWorkingDay: boolean;
+  startTime?: string;
+  endTime?: string;
+  breakTimes?: BreakTime[];
+}
+
+export interface BreakTime {
+  startTime: string;
+  endTime: string;
+  description?: string;
+}
