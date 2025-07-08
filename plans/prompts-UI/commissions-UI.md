@@ -1,1 +1,0 @@
-The commissions tab shows the current and historical commissions of a life insurance advisor. Use your knowledge of a life insurance advisor user who wants to know about their commissions. Figure out the best way to present the information. They should be able to download their statements by month or year. They should be able to search their details as well. Tell me your plan.
