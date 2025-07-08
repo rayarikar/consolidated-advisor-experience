@@ -15,10 +15,13 @@ import {
   TableRow,
   Paper,
   IconButton,
-  Tooltip
+  Tooltip,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText
 } from '@mui/material';
 import {
-  Visibility,
   AttachMoney,
   Assignment,
   Search,
@@ -26,10 +29,15 @@ import {
   ArrowUpward,
   ArrowDownward,
   FilterList,
-  FileDownload
+  FileDownload,
+  MoreVert,
+  NoteAdd,
+  Phone,
+  Schedule
 } from '@mui/icons-material';
 import { Case, Policy, Notification } from '../../types';
 import { CriticalNotifications } from './CriticalNotifications';
+import { ActionModal } from './ActionModal';
 
 interface UnifiedDashboardProps {
   cases: Case[];
@@ -48,6 +56,10 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
   const [sortField, setSortField] = useState<SortField>('');
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   const [viewFilter, setViewFilter] = useState<ViewFilter>('all');
+  const [actionMenuAnchor, setActionMenuAnchor] = useState<null | HTMLElement>(null);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [actionType, setActionType] = useState<'add-note' | 'contact-client' | 'set-reminder' | null>(null);
 
   const handleViewFilterChange = (filter: ViewFilter) => {
     setViewFilter(filter);
@@ -212,6 +224,23 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleActionMenuClose = () => {
+    setActionMenuAnchor(null);
+    setSelectedItem(null);
+  };
+
+  const handleAction = (type: 'add-note' | 'contact-client' | 'set-reminder') => {
+    setActionType(type);
+    setModalOpen(true);
+    handleActionMenuClose();
+  };
+
+  const handleModalSubmit = (data: any) => {
+    console.log('Action submitted:', data);
+    // TODO: Show success notification
+    alert(`${data.actionType} saved successfully!`);
   };
 
   return (
@@ -421,11 +450,15 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
                   <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
                   <TableCell>{item.secondaryInfo}</TableCell>
                   <TableCell>
-                    <Tooltip title="View Details">
-                      <IconButton size="small">
-                        <Visibility />
-                      </IconButton>
-                    </Tooltip>
+                    <IconButton 
+                      size="small"
+                      onClick={(event) => {
+                        setActionMenuAnchor(event.currentTarget);
+                        setSelectedItem(item);
+                      }}
+                    >
+                      <MoreVert />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))
@@ -442,6 +475,43 @@ export const UnifiedDashboard: React.FC<UnifiedDashboardProps> = ({ cases, polic
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Action Menu */}
+      <Menu
+        anchorEl={actionMenuAnchor}
+        open={Boolean(actionMenuAnchor)}
+        onClose={handleActionMenuClose}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        <MenuItem onClick={() => handleAction('add-note')}>
+          <ListItemIcon>
+            <NoteAdd fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Add Note</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleAction('contact-client')}>
+          <ListItemIcon>
+            <Phone fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Contact Client</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={() => handleAction('set-reminder')}>
+          <ListItemIcon>
+            <Schedule fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Set Reminder</ListItemText>
+        </MenuItem>
+      </Menu>
+
+      {/* Action Modal */}
+      <ActionModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        actionType={actionType}
+        item={selectedItem}
+        onSubmit={handleModalSubmit}
+      />
 
     </Box>
   );
