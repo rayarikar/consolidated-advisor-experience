@@ -94,12 +94,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
-    { id: 'illustrations', label: 'Illustrations', icon: <Assessment />, path: '/illustrations' },
-    { id: 'profile', label: 'Profile', icon: <Person />, path: '/profile' },
-    { id: 'notifications', label: 'Notifications', icon: <Notifications />, path: '/notifications' },
     { id: 'self-service', label: 'Self Service', icon: <SupportAgent />, path: '/self-service' },
-    { id: 'commissions', label: 'Commissions', icon: <AttachMoney />, path: '/commissions' },
+    { id: 'illustrations', label: 'Illustrations', icon: <Assessment />, path: '/illustrations' },
     { id: 'marketing', label: 'Marketing', icon: <Business />, path: '/marketing' },
+    { id: 'commissions', label: 'Commissions', icon: <AttachMoney />, path: '/commissions' },
+    { id: 'profile', label: 'Profile', icon: <Person />, path: '/profile' },
   ];
 
   const drawer = (
