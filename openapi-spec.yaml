@@ -1,0 +1,554 @@
+openapi: 3.0.3
+info:
+  title: Life Insurance Agent Preferences API
+  description: API for managing communication preferences for life insurance agents
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: https://staging-api.example.com/v1
+    description: Staging server
+
+paths:
+  /agents/{agentId}/preferences:
+    get:
+      summary: Get agent communication preferences
+      description: Retrieve communication preferences for a specific life insurance agent
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          description: Unique identifier for the agent
+          schema:
+            type: string
+            pattern: '^[A-Za-z0-9-_]+$'
+            example: "agent-12345"
+      responses:
+        '200':
+          description: Successfully retrieved agent preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentPreferences'
+        '404':
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /agents/{agentId}/preferences/channels:
+    get:
+      summary: Get agent communication channels
+      description: Retrieve only the communication channels configuration for an agent
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          description: Unique identifier for the agent
+          schema:
+            type: string
+            pattern: '^[A-Za-z0-9-_]+$'
+            example: "agent-12345"
+      responses:
+        '200':
+          description: Successfully retrieved communication channels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunicationChannels'
+        '404':
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /agents/{agentId}/preferences/types:
+    get:
+      summary: Get agent communication types preferences
+      description: Retrieve communication type preferences for an agent
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          description: Unique identifier for the agent
+          schema:
+            type: string
+            pattern: '^[A-Za-z0-9-_]+$'
+            example: "agent-12345"
+      responses:
+        '200':
+          description: Successfully retrieved communication types preferences
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunicationTypes'
+        '404':
+          description: Agent not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    AgentPreferences:
+      type: object
+      properties:
+        agentId:
+          type: string
+          description: Unique identifier for the agent
+          example: "agent-12345"
+        communicationChannels:
+          $ref: '#/components/schemas/CommunicationChannels'
+        communicationTypes:
+          $ref: '#/components/schemas/CommunicationTypes'
+        businessHours:
+          $ref: '#/components/schemas/BusinessHours'
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Timestamp of last preference update
+          example: "2024-07-08T10:30:00Z"
+      required:
+        - agentId
+        - communicationChannels
+        - communicationTypes
+        - businessHours
+        - lastUpdated
+
+    CommunicationChannels:
+      type: object
+      properties:
+        email:
+          $ref: '#/components/schemas/EmailChannel'
+        sms:
+          $ref: '#/components/schemas/SmsChannel'
+        phone:
+          $ref: '#/components/schemas/PhoneChannel'
+        pushNotification:
+          $ref: '#/components/schemas/PushNotificationChannel'
+        mail:
+          $ref: '#/components/schemas/MailChannel'
+      required:
+        - email
+        - sms
+        - phone
+        - pushNotification
+        - mail
+
+    EmailChannel:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether email notifications are enabled
+          example: true
+        address:
+          type: string
+          format: email
+          description: Email address for notifications
+          example: "agent@example.com"
+        frequency:
+          type: string
+          enum: [immediate, daily, weekly]
+          description: Email notification frequency
+          example: "immediate"
+      required:
+        - enabled
+        - address
+        - frequency
+
+    SmsChannel:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether SMS notifications are enabled
+          example: true
+        phoneNumber:
+          type: string
+          pattern: '^\+?[1-9]\d{1,14}$'
+          description: Phone number for SMS notifications
+          example: "+1234567890"
+        frequency:
+          type: string
+          enum: [immediate, daily, weekly]
+          description: SMS notification frequency
+          example: "immediate"
+      required:
+        - enabled
+        - phoneNumber
+        - frequency
+
+    PhoneChannel:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether phone call notifications are enabled
+          example: true
+        phoneNumber:
+          type: string
+          pattern: '^\+?[1-9]\d{1,14}$'
+          description: Phone number for calls
+          example: "+1234567890"
+        timeSlots:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeSlot'
+          description: Preferred time slots for receiving calls
+      required:
+        - enabled
+        - phoneNumber
+        - timeSlots
+
+    PushNotificationChannel:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether push notifications are enabled
+          example: true
+        deviceTokens:
+          type: array
+          items:
+            type: string
+          description: Device tokens for push notifications
+          example: ["token1", "token2"]
+      required:
+        - enabled
+        - deviceTokens
+
+    MailChannel:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: Whether postal mail notifications are enabled
+          example: false
+        address:
+          $ref: '#/components/schemas/PostalAddress'
+      required:
+        - enabled
+
+    PostalAddress:
+      type: object
+      properties:
+        street:
+          type: string
+          example: "123 Main St"
+        city:
+          type: string
+          example: "Anytown"
+        state:
+          type: string
+          example: "NY"
+        zipCode:
+          type: string
+          example: "12345"
+        country:
+          type: string
+          example: "USA"
+      required:
+        - street
+        - city
+        - state
+        - zipCode
+        - country
+
+    TimeSlot:
+      type: object
+      properties:
+        dayOfWeek:
+          type: string
+          enum: [monday, tuesday, wednesday, thursday, friday, saturday, sunday]
+          example: "monday"
+        startTime:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+          example: "09:00"
+        endTime:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+          example: "17:00"
+      required:
+        - dayOfWeek
+        - startTime
+        - endTime
+
+    CommunicationTypes:
+      type: object
+      properties:
+        leadAssignments:
+          $ref: '#/components/schemas/LeadAssignmentPreferences'
+        policyRenewals:
+          $ref: '#/components/schemas/PolicyRenewalPreferences'
+        claims:
+          $ref: '#/components/schemas/ClaimsPreferences'
+        compliance:
+          $ref: '#/components/schemas/CompliancePreferences'
+        marketing:
+          $ref: '#/components/schemas/MarketingPreferences'
+        training:
+          $ref: '#/components/schemas/TrainingPreferences'
+        commissions:
+          $ref: '#/components/schemas/CommissionPreferences'
+      required:
+        - leadAssignments
+        - policyRenewals
+        - claims
+        - compliance
+        - marketing
+        - training
+        - commissions
+
+    LeadAssignmentPreferences:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [email, sms, phone, pushNotification, mail]
+          description: Preferred channels for lead assignment notifications
+          example: ["email", "sms"]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          description: Priority level for lead notifications
+          example: "high"
+      required:
+        - channels
+        - priority
+
+    PolicyRenewalPreferences:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [email, sms, phone, pushNotification, mail]
+          description: Preferred channels for policy renewal notifications
+          example: ["email", "mail"]
+        advanceNotice:
+          type: integer
+          minimum: 1
+          maximum: 365
+          description: Days in advance to send renewal reminders
+          example: 30
+      required:
+        - channels
+        - advanceNotice
+
+    ClaimsPreferences:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [email, sms, phone, pushNotification, mail]
+          description: Preferred channels for claims notifications
+          example: ["email", "phone"]
+        urgentOnly:
+          type: boolean
+          description: Only receive notifications for urgent claims
+          example: false
+      required:
+        - channels
+        - urgentOnly
+
+    CompliancePreferences:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [email, sms, phone, pushNotification, mail]
+          description: Preferred channels for compliance notifications
+          example: ["email", "mail"]
+        mandatory:
+          type: boolean
+          description: Whether compliance notifications are mandatory
+          example: true
+      required:
+        - channels
+        - mandatory
+
+    MarketingPreferences:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [email, sms, phone, pushNotification, mail]
+          description: Preferred channels for marketing notifications
+          example: ["email"]
+        optIn:
+          type: boolean
+          description: Whether opted in to marketing communications
+          example: true
+      required:
+        - channels
+        - optIn
+
+    TrainingPreferences:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [email, sms, phone, pushNotification, mail]
+          description: Preferred channels for training notifications
+          example: ["email", "pushNotification"]
+        reminders:
+          type: boolean
+          description: Whether to send training reminders
+          example: true
+      required:
+        - channels
+        - reminders
+
+    CommissionPreferences:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+            enum: [email, sms, phone, pushNotification, mail]
+          description: Preferred channels for commission notifications
+          example: ["email"]
+        statements:
+          type: boolean
+          description: Whether to send commission statements
+          example: true
+      required:
+        - channels
+        - statements
+
+    BusinessHours:
+      type: object
+      properties:
+        timezone:
+          type: string
+          description: Agent's timezone
+          example: "America/New_York"
+        schedule:
+          type: object
+          properties:
+            monday:
+              $ref: '#/components/schemas/DaySchedule'
+            tuesday:
+              $ref: '#/components/schemas/DaySchedule'
+            wednesday:
+              $ref: '#/components/schemas/DaySchedule'
+            thursday:
+              $ref: '#/components/schemas/DaySchedule'
+            friday:
+              $ref: '#/components/schemas/DaySchedule'
+            saturday:
+              $ref: '#/components/schemas/DaySchedule'
+            sunday:
+              $ref: '#/components/schemas/DaySchedule'
+          required:
+            - monday
+            - tuesday
+            - wednesday
+            - thursday
+            - friday
+            - saturday
+            - sunday
+      required:
+        - timezone
+        - schedule
+
+    DaySchedule:
+      type: object
+      properties:
+        isWorkingDay:
+          type: boolean
+          description: Whether this is a working day
+          example: true
+        startTime:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+          description: Start time for the day
+          example: "09:00"
+        endTime:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+          description: End time for the day
+          example: "17:00"
+        breakTimes:
+          type: array
+          items:
+            $ref: '#/components/schemas/BreakTime'
+          description: Break times during the day
+      required:
+        - isWorkingDay
+
+    BreakTime:
+      type: object
+      properties:
+        startTime:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+          description: Break start time
+          example: "12:00"
+        endTime:
+          type: string
+          pattern: '^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$'
+          description: Break end time
+          example: "13:00"
+        description:
+          type: string
+          description: Description of the break
+          example: "Lunch break"
+      required:
+        - startTime
+        - endTime
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Error code
+          example: "AGENT_NOT_FOUND"
+        message:
+          type: string
+          description: Error message
+          example: "Agent with the specified ID was not found"
+        details:
+          type: object
+          description: Additional error details
+      required:
+        - code
+        - message
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
