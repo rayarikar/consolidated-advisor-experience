@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { prudentialTheme } from './theme/prudentialTheme';
@@ -29,7 +30,6 @@ import { User, Preferences, SelfServiceRequest } from './types';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
-  const [currentPage, setCurrentPage] = useState('dashboard');
   const [currentUser, setCurrentUser] = useState<User>(mockUser);
   const [userPreferences, setUserPreferences] = useState<Preferences>(mockPreferences);
   const [selfServiceRequests, setSelfServiceRequests] = useState(mockSelfServiceRequests);
@@ -97,7 +97,6 @@ function App() {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    setCurrentPage('dashboard');
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('currentUser');
   };
@@ -141,12 +140,12 @@ function App() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage('search-results');
+    // Navigation will be handled by React Router
   };
 
   const handleBackFromSearch = () => {
-    setCurrentPage('dashboard');
     setSearchQuery('');
+    // Navigation will be handled by React Router
   };
 
   const handleCloseCopilot = () => {
@@ -159,95 +158,182 @@ function App() {
     setIsCopilotMinimized(true);
   };
 
-  const renderCurrentPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return (
-          <UnifiedDashboard 
-            cases={mockCases} 
-            policies={mockPolicies} 
-            notifications={mockNotifications}
-            onNavigateToNotifications={() => setCurrentPage('preferences')}
-          />
-        );
-      case 'profile':
-        return <ProfileManagement user={currentUser} onUpdateProfile={handleUpdateProfile} />;
-      case 'preferences':
-        return <NotificationPage />;
-      case 'self-service':
-        return <SelfServicePage />;
-      case 'commissions':
-        return <CommissionDashboard />;
-      case 'marketing':
-        return <MarketingPage />;
-      case 'illustrations':
-        return <IllustrationPage />;
-      case 'search-results':
-        return (
-          <SearchResultsPage 
-            searchQuery={searchQuery}
-            onBack={handleBackFromSearch}
-            onNewSearch={handleSearch}
-          />
-        );
-      default:
-        return (
-          <UnifiedDashboard 
-            cases={mockCases} 
-            policies={mockPolicies} 
-            notifications={mockNotifications}
-            onNavigateToNotifications={() => setCurrentPage('preferences')}
-          />
-        );
-    }
+  // Protected Route component
+  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
   };
 
-  if (!isAuthenticated) {
-    return (
-      <ThemeProvider theme={prudentialTheme}>
-        <CssBaseline />
-        {showRegister ? (
-          <RegisterForm
-            onRegister={handleRegister}
-            onSwitchToLogin={() => setShowRegister(false)}
-            error={authError}
-          />
-        ) : (
-          <LoginForm
-            onLogin={handleLogin}
-            onSwitchToRegister={() => setShowRegister(true)}
-            error={authError}
-          />
-        )}
-      </ThemeProvider>
-    );
-  }
 
   return (
     <ThemeProvider theme={prudentialTheme}>
       <CssBaseline />
-      <AppLayout
-        user={currentUser}
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        onLogout={handleLogout}
-        onToggleCopilot={handleToggleCopilot}
-        onOpenSearch={handleOpenSearch}
-      >
-        {renderCurrentPage()}
-      </AppLayout>
-      
-      <GlobalSearchModal
-        open={searchModalOpen}
-        onClose={handleCloseSearch}
-        onSearch={handleSearch}
-      />
-      
-      <CopilotPanel
-        isOpen={isCopilotOpen}
-        onClose={handleCloseCopilot}
-        onMinimize={handleMinimizeCopilot}
-      />
+      <Router>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={
+            !isAuthenticated ? (
+              showRegister ? (
+                <RegisterForm
+                  onRegister={handleRegister}
+                  onSwitchToLogin={() => setShowRegister(false)}
+                  error={authError}
+                />
+              ) : (
+                <LoginForm
+                  onLogin={handleLogin}
+                  onSwitchToRegister={() => setShowRegister(true)}
+                  error={authError}
+                />
+              )
+            ) : (
+              <Navigate to="/dashboard" replace />
+            )
+          } />
+          
+          {/* Protected routes */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <AppLayout
+                user={currentUser}
+                onLogout={handleLogout}
+                onToggleCopilot={handleToggleCopilot}
+                onOpenSearch={handleOpenSearch}
+              >
+                <Navigate to="/dashboard" replace />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <AppLayout
+                user={currentUser}
+                onLogout={handleLogout}
+                onToggleCopilot={handleToggleCopilot}
+                onOpenSearch={handleOpenSearch}
+              >
+                <UnifiedDashboard 
+                  cases={mockCases} 
+                  policies={mockPolicies} 
+                  notifications={mockNotifications}
+                  onNavigateToNotifications={() => window.location.href = '/notifications'}
+                />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          
+          <Route path="/notifications" element={
+            <ProtectedRoute>
+              <AppLayout
+                user={currentUser}
+                onLogout={handleLogout}
+                onToggleCopilot={handleToggleCopilot}
+                onOpenSearch={handleOpenSearch}
+              >
+                <NotificationPage />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <AppLayout
+                user={currentUser}
+                onLogout={handleLogout}
+                onToggleCopilot={handleToggleCopilot}
+                onOpenSearch={handleOpenSearch}
+              >
+                <ProfileManagement user={currentUser} onUpdateProfile={handleUpdateProfile} />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/self-service" element={
+            <ProtectedRoute>
+              <AppLayout
+                user={currentUser}
+                onLogout={handleLogout}
+                onToggleCopilot={handleToggleCopilot}
+                onOpenSearch={handleOpenSearch}
+              >
+                <SelfServicePage />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/commissions" element={
+            <ProtectedRoute>
+              <AppLayout
+                user={currentUser}
+                onLogout={handleLogout}
+                onToggleCopilot={handleToggleCopilot}
+                onOpenSearch={handleOpenSearch}
+              >
+                <CommissionDashboard />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/marketing" element={
+            <ProtectedRoute>
+              <AppLayout
+                user={currentUser}
+                onLogout={handleLogout}
+                onToggleCopilot={handleToggleCopilot}
+                onOpenSearch={handleOpenSearch}
+              >
+                <MarketingPage />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/illustrations" element={
+            <ProtectedRoute>
+              <AppLayout
+                user={currentUser}
+                onLogout={handleLogout}
+                onToggleCopilot={handleToggleCopilot}
+                onOpenSearch={handleOpenSearch}
+              >
+                <IllustrationPage />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          <Route path="/search-results" element={
+            <ProtectedRoute>
+              <AppLayout
+                user={currentUser}
+                onLogout={handleLogout}
+                onToggleCopilot={handleToggleCopilot}
+                onOpenSearch={handleOpenSearch}
+              >
+                <SearchResultsPage 
+                  searchQuery={searchQuery}
+                  onBack={handleBackFromSearch}
+                  onNewSearch={handleSearch}
+                />
+              </AppLayout>
+            </ProtectedRoute>
+          } />
+          
+          {/* Default redirect */}
+          <Route path="*" element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />} />
+        </Routes>
+        
+        <GlobalSearchModal
+          open={searchModalOpen}
+          onClose={handleCloseSearch}
+          onSearch={handleSearch}
+        />
+        
+        <CopilotPanel
+          isOpen={isCopilotOpen}
+          onClose={handleCloseCopilot}
+          onMinimize={handleMinimizeCopilot}
+        />
+      </Router>
     </ThemeProvider>
   );
 }

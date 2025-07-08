@@ -7,17 +7,13 @@ import {
   Chip,
   Button,
   Stack,
-  IconButton,
   Divider,
   useTheme,
   useMediaQuery
 } from '@mui/material';
 import {
   ArrowForward as ArrowForwardIcon,
-  Warning as WarningIcon,
-  Error as ErrorIcon,
   Notifications as NotificationsIcon,
-  Schedule as ScheduleIcon,
   Person as PersonIcon,
   Policy as PolicyIcon,
   Assignment as AssignmentIcon
@@ -69,14 +65,6 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
     }
   };
 
-  const getUrgencyIcon = (urgencyLevel?: string) => {
-    switch (urgencyLevel) {
-      case 'Immediate': return <ErrorIcon fontSize="small" />;
-      case 'This Week': return <WarningIcon fontSize="small" />;
-      case 'This Month': return <ScheduleIcon fontSize="small" />;
-      default: return <NotificationsIcon fontSize="small" />;
-    }
-  };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -102,11 +90,10 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
       }}
       onClick={() => onViewNotificationDetails(notification.id)}
     >
-      <CardContent sx={{ p: 2 }}>
+      <CardContent sx={{ p: 1.2 }}>
         {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
-            {getUrgencyIcon(notification.urgencyLevel)}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flex: 1 }}>
             <Chip 
               label={notification.priority}
               size="small"
@@ -114,13 +101,13 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
                 backgroundColor: getPriorityColor(notification.priority),
                 color: 'white',
                 fontWeight: 600,
-                fontSize: '0.75rem'
+                fontSize: '0.7rem'
               }}
             />
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
             {getCategoryIcon(notification.category)}
-            <Typography variant="caption" color="text.secondary">
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
               {notification.urgencyLevel || 'Standard'}
             </Typography>
           </Box>
@@ -128,11 +115,11 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
 
         {/* Title */}
         <Typography 
-          variant="h6" 
+          variant="body2" 
           sx={{ 
             fontWeight: 600,
-            fontSize: '1rem',
-            mb: 1,
+            fontSize: '0.8rem',
+            mb: 0.5,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -144,12 +131,12 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
 
         {/* Message */}
         <Typography 
-          variant="body2" 
+          variant="caption" 
           color="text.secondary"
           sx={{ 
-            mb: 2,
+            mb: 1,
             display: '-webkit-box',
-            WebkitLineClamp: 3,
+            WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden'
           }}
@@ -159,14 +146,14 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
 
         {/* Context Information */}
         {(notification.clientName || notification.relatedNumber) && (
-          <Box sx={{ mb: 2 }}>
+          <Box sx={{ mb: 0.5 }}>
             {notification.clientName && (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.65rem' }}>
                 Client: {notification.clientName}
               </Typography>
             )}
             {notification.relatedNumber && (
-              <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: '0.65rem' }}>
                 {notification.relatedNumber.startsWith('POL') ? 'Policy' : 'Case'}: {notification.relatedNumber}
               </Typography>
             )}
@@ -175,8 +162,8 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
 
         {/* Action Required */}
         {notification.actionRequired && (
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="caption" sx={{ color: getPriorityColor(notification.priority), fontWeight: 600 }}>
+          <Box sx={{ mb: 1 }}>
+            <Typography variant="caption" sx={{ color: getPriorityColor(notification.priority), fontWeight: 600, fontSize: '0.7rem' }}>
               Action Required: {notification.actionRequired}
             </Typography>
           </Box>
@@ -184,7 +171,7 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
 
         {/* Footer */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="caption" color="text.secondary">
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
             {new Date(notification.createdDate).toLocaleDateString()}
             {notification.dueDate && (
               <span style={{ color: getPriorityColor(notification.priority) }}>
@@ -229,14 +216,13 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
       {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <ErrorIcon sx={{ color: 'error.main' }} />
           <Typography variant="h5" sx={{ fontWeight: 600, color: '#003f7f' }}>
-            Critical Notifications
+            Attention Required
           </Typography>
           <Chip 
             label={criticalNotifications.length}
             size="small"
-            color="error"
+            color="default"
             sx={{ fontWeight: 600 }}
           />
         </Box>
@@ -250,8 +236,8 @@ export const CriticalNotifications: React.FC<CriticalNotificationsProps> = ({
         </Button>
       </Box>
 
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-        High-priority notifications requiring immediate advisor attention
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Items requiring your attention
       </Typography>
 
       {/* Scrollable Notifications */}

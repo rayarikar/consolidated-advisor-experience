@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Box,
   Drawer,
@@ -43,8 +44,6 @@ const collapsedDrawerWidth = 72;
 interface AppLayoutProps {
   children: React.ReactNode;
   user: User;
-  currentPage: string;
-  onPageChange: (page: string) => void;
   onLogout: () => void;
   onToggleCopilot?: () => void;
   onOpenSearch?: () => void;
@@ -53,8 +52,6 @@ interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({
   children,
   user,
-  currentPage,
-  onPageChange,
   onLogout,
   onToggleCopilot,
   onOpenSearch
@@ -62,6 +59,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const location = useLocation();
   
   const unreadNotifications = mockNotifications.filter(n => !n.isRead).length;
 
@@ -95,13 +93,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   };
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <Dashboard /> },
-    { id: 'illustrations', label: 'Illustrations', icon: <Assessment /> },
-    { id: 'profile', label: 'Profile', icon: <Person /> },
-    { id: 'preferences', label: 'Notifications', icon: <Notifications /> },
-    { id: 'self-service', label: 'Self Service', icon: <SupportAgent /> },
-    { id: 'commissions', label: 'Commissions', icon: <AttachMoney /> },
-    { id: 'marketing', label: 'Marketing', icon: <Business /> },
+    { id: 'dashboard', label: 'Dashboard', icon: <Dashboard />, path: '/dashboard' },
+    { id: 'illustrations', label: 'Illustrations', icon: <Assessment />, path: '/illustrations' },
+    { id: 'profile', label: 'Profile', icon: <Person />, path: '/profile' },
+    { id: 'notifications', label: 'Notifications', icon: <Notifications />, path: '/notifications' },
+    { id: 'self-service', label: 'Self Service', icon: <SupportAgent />, path: '/self-service' },
+    { id: 'commissions', label: 'Commissions', icon: <AttachMoney />, path: '/commissions' },
+    { id: 'marketing', label: 'Marketing', icon: <Business />, path: '/marketing' },
   ];
 
   const drawer = (
@@ -131,12 +129,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           <ListItem key={item.id} disablePadding>
             <Tooltip title={isCollapsed ? item.label : ''} placement="right">
               <ListItemButton
-                selected={currentPage === item.id}
-                onClick={() => onPageChange(item.id)}
+                component={Link}
+                to={item.path}
+                selected={location.pathname === item.path}
                 sx={{
                   minHeight: 48,
                   justifyContent: isCollapsed ? 'center' : 'initial',
                   px: 2.5,
+                  textDecoration: 'none',
+                  color: 'inherit',
                   '&.Mui-selected': {
                     backgroundColor: '#e3f2fd',
                     borderRight: '3px solid #003f7f',
@@ -189,7 +190,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, color: 'white', fontWeight: 600 }}>
-            {isCollapsed ? 'Advisor Portal' : (menuItems.find(item => item.id === currentPage)?.label || 'Dashboard')}
+            {isCollapsed ? 'Advisor Portal' : (menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard')}
           </Typography>
           
           <IconButton 
@@ -204,7 +205,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           <IconButton 
             color="inherit" 
             sx={{ mr: 1 }}
-            onClick={() => onPageChange('preferences')}
+            component={Link}
+            to="/notifications"
           >
             <Badge badgeContent={unreadNotifications} color="error">
               <Notifications />
@@ -251,7 +253,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           horizontal: 'right',
         }}
       >
-        <MenuItem onClick={() => { handleProfileMenuClose(); onPageChange('profile'); }}>
+        <MenuItem component={Link} to="/profile" onClick={handleProfileMenuClose}>
           <ListItemIcon>
             <AccountCircle fontSize="small" />
           </ListItemIcon>
