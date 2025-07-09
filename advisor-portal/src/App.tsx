@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { prudentialTheme } from './theme/prudentialTheme';
@@ -27,7 +27,8 @@ import {
 } from './data/mockData';
 import { User, Preferences, SelfServiceRequest } from './types';
 
-function App() {
+const AppContent = () => {
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [currentUser, setCurrentUser] = useState<User>(mockUser);
@@ -140,12 +141,12 @@ function App() {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Navigation will be handled by React Router
+    navigate('/search-results');
   };
 
   const handleBackFromSearch = () => {
     setSearchQuery('');
-    // Navigation will be handled by React Router
+    navigate('/dashboard');
   };
 
   const handleCloseCopilot = () => {
@@ -165,10 +166,8 @@ function App() {
 
 
   return (
-    <ThemeProvider theme={prudentialTheme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
+    <>
+      <Routes>
           {/* Public routes */}
           <Route path="/login" element={
             !isAuthenticated ? (
@@ -333,6 +332,16 @@ function App() {
           onClose={handleCloseCopilot}
           onMinimize={handleMinimizeCopilot}
         />
+      </>
+  );
+};
+
+function App() {
+  return (
+    <ThemeProvider theme={prudentialTheme}>
+      <CssBaseline />
+      <Router>
+        <AppContent />
       </Router>
     </ThemeProvider>
   );

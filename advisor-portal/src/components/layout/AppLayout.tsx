@@ -22,7 +22,6 @@ import {
 import {
   Menu as MenuIcon,
   Dashboard,
-  Person,
   AttachMoney,
   SupportAgent,
   Notifications,
