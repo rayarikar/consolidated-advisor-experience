@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -39,6 +39,7 @@ const AppContent = () => {
   const [isCopilotMinimized, setIsCopilotMinimized] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const copilotRef = useRef<any>(null);
 
   // Load from localStorage on component mount
   useEffect(() => {
@@ -159,6 +160,7 @@ const AppContent = () => {
     setIsCopilotMinimized(true);
   };
 
+
   // Protected Route component
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
@@ -215,7 +217,7 @@ const AppContent = () => {
                   cases={mockCases} 
                   policies={mockPolicies} 
                   notifications={mockNotifications}
-                  onNavigateToNotifications={() => window.location.href = '/notifications'}
+                  onNavigateToNotifications={() => navigate('/notifications')}
                 />
               </AppLayout>
             </ProtectedRoute>
@@ -328,6 +330,7 @@ const AppContent = () => {
         />
         
         <CopilotPanel
+          ref={copilotRef}
           isOpen={isCopilotOpen}
           onClose={handleCloseCopilot}
           onMinimize={handleMinimizeCopilot}

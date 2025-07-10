@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 import {
   Box,
   Paper,
@@ -11,15 +11,21 @@ import {
   Chip,
   Fade,
   Divider,
-  CircularProgress
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton
 } from '@mui/material';
 import {
   Close as CloseIcon,
   Minimize as MinimizeIcon,
   Send as SendIcon,
   SmartToy as CopilotIcon,
-  DragHandle as DragIcon,
-  Person as PersonIcon
+  Person as PersonIcon,
+  History as HistoryIcon,
+  Add as AddIcon,
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 import { mockProducts } from '../../data/marketingData';
 
@@ -31,17 +37,26 @@ interface Message {
   suggestions?: string[];
 }
 
+interface ChatSession {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+  lastModified: Date;
+}
+
 interface CopilotPanelProps {
   isOpen: boolean;
   onClose: () => void;
   onMinimize: () => void;
 }
 
-export const CopilotPanel: React.FC<CopilotPanelProps> = ({
+export const CopilotPanel = forwardRef<any, CopilotPanelProps>(({
   isOpen,
   onClose,
   onMinimize
-}) => {
+}, ref) => {
+  const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -58,19 +73,137 @@ export const CopilotPanel: React.FC<CopilotPanelProps> = ({
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [panelSize, setPanelSize] = useState({ width: 400, height: window.innerHeight });
-  const [panelPosition, setPanelPosition] = useState({ x: window.innerWidth - 400, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
+  const [panelHeight] = useState(window.innerHeight - 100); // Fixed height, no dragging
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  
+  // Dynamic width calculation - fixed widths for right-aligned panel
+  const getCurrentPanelWidth = useCallback(() => isHistoryOpen ? 600 : 400, [isHistoryOpen]);
+  const getHistorySidebarWidth = useCallback(() => 200, []);
   
   const panelRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const dragStartRef = useRef({ x: 0, y: 0 });
+
+  // Chat history utility functions
+  const getChatSessions = (): ChatSession[] => {
+    const stored = localStorage.getItem('chatSessions');
+    return stored ? JSON.parse(stored) : [];
+  };
+
+  const saveChatSessions = (sessions: ChatSession[]) => {
+    localStorage.setItem('chatSessions', JSON.stringify(sessions));
+  };
+
+  const generateSessionTitle = (messages: Message[]): string => {
+    const firstUserMessage = messages.find(m => m.sender === 'user');
+    if (firstUserMessage) {
+      return firstUserMessage.text.substring(0, 50) + (firstUserMessage.text.length > 50 ? '...' : '');
+    }
+    return `Chat ${new Date().toLocaleDateString()}`;
+  };
+
+  const saveCurrentSession = useCallback(() => {
+    if (messages.length <= 1) return; // Don't save if only welcome message
+    
+    const sessions = getChatSessions();
+    const sessionTitle = generateSessionTitle(messages);
+    
+    const sessionData: ChatSession = {
+      id: currentSessionId || Date.now().toString(),
+      title: sessionTitle,
+      messages: messages,
+      createdAt: new Date(),
+      lastModified: new Date()
+    };
+
+    const existingIndex = sessions.findIndex(s => s.id === sessionData.id);
+    if (existingIndex >= 0) {
+      sessions[existingIndex] = sessionData;
+    } else {
+      sessions.unshift(sessionData);
+    }
+
+    // Keep only last 10 sessions
+    const trimmedSessions = sessions.slice(0, 10);
+    saveChatSessions(trimmedSessions);
+    
+    if (!currentSessionId) {
+      setCurrentSessionId(sessionData.id);
+    }
+  }, [messages, currentSessionId]);
+
+  const startNewSession = () => {
+    if (messages.length > 1) {
+      saveCurrentSession();
+    }
+    
+    setCurrentSessionId('');
+    setMessages([{
+      id: '1',
+      text: 'Hello! I\'m your Prudential Copilot. I can help you with product information, coverage details, and answer questions about our insurance offerings. What would you like to know?',
+      sender: 'copilot',
+      timestamp: new Date(),
+      suggestions: [
+        'Tell me about Term Life products',
+        'What riders are available?',
+        'Show me Universal Life features',
+        'Compare product coverage amounts'
+      ]
+    }]);
+  };
+
+  const loadSession = (sessionId: string) => {
+    const sessions = getChatSessions();
+    const session = sessions.find(s => s.id === sessionId);
+    if (session) {
+      setCurrentSessionId(sessionId);
+      setMessages(session.messages);
+      setIsHistoryOpen(false); // Close history panel after loading
+    }
+  };
+
+  const deleteSession = (sessionId: string) => {
+    const sessions = getChatSessions();
+    const updatedSessions = sessions.filter(s => s.id !== sessionId);
+    setChatSessions(updatedSessions);
+    saveChatSessions(updatedSessions);
+  };
+
+  const loadChatSessions = () => {
+    const sessions = getChatSessions();
+    setChatSessions(sessions);
+  };
+
+  const toggleHistory = () => {
+    if (!isHistoryOpen) {
+      loadChatSessions(); // Refresh sessions when opening
+    }
+    setIsHistoryOpen(!isHistoryOpen);
+  };
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Save session when messages change
+  useEffect(() => {
+    if (messages.length > 1) {
+      const timeoutId = setTimeout(() => {
+        saveCurrentSession();
+      }, 1000); // Debounce saves
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [messages, saveCurrentSession]);
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    startNewSession,
+    loadSession,
+    saveCurrentSession,
+    toggleHistory
+  }));
 
   const handleSendMessage = useCallback(async (text: string) => {
     if (!text.trim()) return;
@@ -171,38 +304,6 @@ export const CopilotPanel: React.FC<CopilotPanelProps> = ({
     };
   };
 
-  const handleDragStart = useCallback((e: React.MouseEvent) => {
-    if (e.target !== e.currentTarget) return;
-    setIsDragging(true);
-    dragStartRef.current = {
-      x: e.clientX - panelPosition.x,
-      y: e.clientY - panelPosition.y
-    };
-  }, [panelPosition]);
-
-  const handleDrag = useCallback((e: MouseEvent) => {
-    if (!isDragging) return;
-    
-    const newX = Math.max(0, Math.min(window.innerWidth - panelSize.width, e.clientX - dragStartRef.current.x));
-    const newY = Math.max(0, Math.min(window.innerHeight - 100, e.clientY - dragStartRef.current.y));
-    
-    setPanelPosition({ x: newX, y: newY });
-  }, [isDragging, panelSize.width]);
-
-  const handleDragEnd = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleDrag);
-      document.addEventListener('mouseup', handleDragEnd);
-      return () => {
-        document.removeEventListener('mousemove', handleDrag);
-        document.removeEventListener('mouseup', handleDragEnd);
-      };
-    }
-  }, [isDragging, handleDrag, handleDragEnd]);
 
   if (!isOpen) return null;
 
@@ -213,46 +314,157 @@ export const CopilotPanel: React.FC<CopilotPanelProps> = ({
         elevation={8}
         sx={{
           position: 'fixed',
-          left: panelPosition.x,
-          top: panelPosition.y,
-          width: panelSize.width,
-          height: panelSize.height,
+          right: 0,
+          top: 64, // Below the header
+          width: getCurrentPanelWidth(),
+          height: panelHeight,
           zIndex: 1300,
           display: 'flex',
-          flexDirection: 'column',
-          maxHeight: '100vh',
+          flexDirection: 'row',
           bgcolor: 'background.paper',
           border: '1px solid',
           borderColor: 'divider',
-          borderRadius: 2,
-          overflow: 'hidden'
+          borderRadius: '8px 0 0 8px', // Rounded on left side only
+          overflow: 'hidden',
+          transition: 'width 0.3s ease',
+          boxShadow: '-2px 0 8px rgba(0, 0, 0, 0.1)'
         }}
       >
-        {/* Header */}
+        {/* History Sidebar */}
+        {isHistoryOpen && (
+          <Box
+            sx={{
+              width: getHistorySidebarWidth(),
+              bgcolor: 'grey.50',
+              borderRight: '1px solid',
+              borderColor: 'divider',
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              minWidth: 250, // Prevent sidebar from getting too narrow
+              maxWidth: 350  // Prevent sidebar from getting too wide
+            }}
+          >
+            {/* History Header */}
+            <Box
+              sx={{
+                p: 2,
+                bgcolor: 'grey.100',
+                borderBottom: '1px solid',
+                borderColor: 'divider'
+              }}
+            >
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, textAlign: 'center' }}>
+                Chat History
+              </Typography>
+            </Box>
+
+            {/* Sessions List */}
+            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+              {chatSessions.length === 0 ? (
+                <Box sx={{ p: 2, textAlign: 'center' }}>
+                  <Typography variant="body2" color="text.secondary">
+                    No chat history
+                  </Typography>
+                </Box>
+              ) : (
+                <List dense sx={{ p: 0 }}>
+                  {chatSessions.slice(0, 10).map((session) => (
+                    <ListItem key={session.id} disablePadding>
+                      <ListItemButton
+                        onClick={() => loadSession(session.id)}
+                        selected={session.id === currentSessionId}
+                        sx={{
+                          px: 1.5,
+                          py: 1,
+                          '&.Mui-selected': {
+                            bgcolor: 'primary.light',
+                            color: 'primary.contrastText',
+                          },
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.8rem' }}>
+                              {session.title.length > 35 ? session.title.substring(0, 35) + '...' : session.title}
+                            </Typography>
+                          }
+                          secondary={
+                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+                              {new Date(session.lastModified).toLocaleDateString()} • {session.messages.length} msgs
+                            </Typography>
+                          }
+                        />
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteSession(session.id);
+                          }}
+                          sx={{ ml: 1, opacity: 0.7 }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </Box>
+          </Box>
+        )}
+
+        {/* Main Chat Panel */}
         <Box
           sx={{
+            flexGrow: 1,
             display: 'flex',
-            alignItems: 'center',
-            p: 2,
-            bgcolor: '#003f7f',
-            color: 'white',
-            cursor: isDragging ? 'grabbing' : 'grab',
-            userSelect: 'none'
+            flexDirection: 'column',
+            height: '100%'
           }}
-          onMouseDown={handleDragStart}
         >
-          <CopilotIcon sx={{ mr: 1 }} />
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600 }}>
-            Prudential Copilot
-          </Typography>
-          <DragIcon sx={{ mr: 1, opacity: 0.7 }} />
-          <IconButton size="small" onClick={onMinimize} sx={{ color: 'inherit', mr: 1 }}>
-            <MinimizeIcon />
-          </IconButton>
-          <IconButton size="small" onClick={onClose} sx={{ color: 'inherit' }}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
+          {/* Header */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              p: 2,
+              bgcolor: '#003f7f',
+              color: 'white',
+              userSelect: 'none'
+            }}
+          >
+            <IconButton
+              size="small"
+              onClick={toggleHistory}
+              sx={{ 
+                color: 'inherit', 
+                mr: 1,
+                bgcolor: isHistoryOpen ? 'rgba(255,255,255,0.2)' : 'transparent'
+              }}
+              title="Chat History"
+            >
+              <HistoryIcon />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={() => { startNewSession(); setIsHistoryOpen(false); }}
+              sx={{ color: 'inherit', mr: 1 }}
+              title="New Chat"
+            >
+              <AddIcon />
+            </IconButton>
+            <CopilotIcon sx={{ mr: 1 }} />
+            <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600 }}>
+              Prudential Copilot
+            </Typography>
+            <IconButton size="small" onClick={onMinimize} sx={{ color: 'inherit', mr: 1 }}>
+              <MinimizeIcon />
+            </IconButton>
+            <IconButton size="small" onClick={onClose} sx={{ color: 'inherit' }}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
 
         {/* Messages Area */}
         <Box
@@ -370,7 +582,8 @@ export const CopilotPanel: React.FC<CopilotPanelProps> = ({
             </Button>
           </Stack>
         </Box>
+        </Box>
       </Paper>
     </Fade>
   );
-};
+});

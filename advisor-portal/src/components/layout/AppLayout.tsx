@@ -28,7 +28,7 @@ import {
   AccountCircle,
   ExitToApp,
   Business,
-  SmartToy,
+  Chat,
   Search,
   ChevronLeft,
   ChevronRight,
@@ -216,7 +216,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             onClick={onToggleCopilot}
             title="Prudential Copilot"
           >
-            <SmartToy />
+            <Chat />
           </IconButton>
           
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
