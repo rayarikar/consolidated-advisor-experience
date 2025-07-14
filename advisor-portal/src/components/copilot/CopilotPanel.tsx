@@ -454,7 +454,6 @@ export const CopilotPanel = forwardRef<any, CopilotPanelProps>(({
             >
               <AddIcon />
             </IconButton>
-            <CopilotIcon sx={{ mr: 1 }} />
             <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 600 }}>
               Prudential Copilot
             </Typography>
